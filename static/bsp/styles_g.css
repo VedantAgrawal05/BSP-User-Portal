@@ -1,0 +1,85 @@
+/* body {
+    background: white url("images/bg2.jpg") no-repeat;
+    background-size: cover;
+} */
+li {
+    font-size: 18px;
+}
+h2, h3, li, button {
+    font-family:'Courier New', Courier, monospace;
+    }
+
+a:link, a:visited, a:active, h2, h3{
+    text-decoration: none;
+    color: white;
+}
+
+/* a:hover{
+    text-decoration: none;
+    color: lime;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 8px 8px;
+} */
+
+.cls1{  /* for body */
+        padding: 70px 0;
+        text-align: center;
+}
+
+.cls2 { /* for list items */
+    font-family:'Courier New', Courier, monospace;
+    font-size: 18px;
+    padding: 8px 8px;
+    /* text-align: center; */
+    /* display:flex;
+    justify-content: center; */
+}
+
+/* main ones */
+.div3
+{ /*for unvisited links*/
+    background-color: transparent;
+    color: white;        /* text color */
+    padding: 15px 25px;    /* text padding: distance from edges */
+    text-align: center;
+    text-decoration: none;    /* removes the blue underline */
+    /* display: ; */
+    border-radius: 10px;    
+    align-items: center;
+    width: 13vw;
+    border: none;
+    outline: none;
+    font-family: "Quicksand Medium";
+    font-size: 18px;
+} 
+
+a:link, a:visited, a:hover, a:active
+{/* removes hyperlink formatting */
+    text-decoration: none;
+}
+
+.div3:hover, .div3:active, .div3:visited 
+{/* for hovering over buttons */
+    background-color:  #93b0be;
+    padding: 15px 25px;
+    text-decoration: none; 
+    align-items: center;
+    color: black ;
+    transition-duration: 0.2s;
+    font-family: "Quicksand Medium";
+}
+
+.button     
+{/* shared */
+    background-color: transparent; 
+    color: white; 
+    border: 0.5px solid #93b0be;
+    border-radius: 5px;
+    padding: 5px 5px;
+}
+
+.button:hover {    
+    background-color: #1c354b;
+    color: white;
+}

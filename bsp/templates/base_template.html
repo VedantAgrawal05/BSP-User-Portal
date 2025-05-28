@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AppSite{% endblock %}</title>    
+    {% load static %}
+    {% comment %} <link rel="shortcut icon" type="image/png" href="{% static 'bsp/images/favicon.png' %}" > {% endcomment %}
+    {% comment %} <script src="{% static 'bsp/js/chng.js' %}"></script> {% endcomment %}
+    {% comment %} <link rel="stylesheet" id="pageStyle" href="/static/bsp/styles_base_dark.css" onload="setTheme();"> {% endcomment %}
+    {% comment %} <link rel="stylesheet" id="pageStyle" href="/static/bsp/styles_base_light.css"> {% endcomment %}
+    {% comment %} <p hidden onload="setTheme()"></p> {% endcomment %}
+      {% comment %} <script src="{% static 'garage/js/new.js' %}">swapStyleSheet()</script> {% endcomment %}
+    {% comment %} <link rel="stylesheet" href="{% static 'bsp/styles_g.css' %}"> {% endcomment %}
+    <link rel="stylesheet" href="{% static 'bsp/bsp.css' %}">
+      {% block headcontent %}{%endblock%}
+</head>
+<body>
+  {% comment %} <header>
+    <nav> {% endcomment %}
+      <div id="header" class="header">
+        <div class="header-left">
+        <div class="header-element"><a href="{% url 'bsp:home' %}"><input type="image" id="home-btn" src="{% static 'bsp/images/home-dark.png' %}" class="link-button"></input></a></div >
+        {% comment %} <li><a href="{% url 'garage:FuelRecord' %}"></a>Fuel</li>
+        <li><a href="{% url 'garage:OdoRecord' %}"></a>Mileage</li>
+        <li><a href="{% url 'garage:ServRecord' %}"></a>Service</li> {% endcomment %}
+        {% comment %} <li><a href="{% url 'garage:logout' %}">Logout</a></li> {% endcomment %}
+        </div>
+        <div class="header-right">
+        {% comment %} <div class="header-element"><input type="image" id="theme-btn" src="{% static 'garage/images/theme-dark.png' %}" class="link-button"></input></div > {% endcomment %}
+        {% comment %} <div class="header-element"><input type="image" id="theme-btn-dark" src="{% static 'garage/images/theme-light.png' %}" class="link-button" hidden="hidden"></input></div > {% endcomment %}
+          {% comment %} <div class="header-element"> <input type="image" id="theme-btn-dark" src="{% static 'garage/images/theme-dark.png' %}" class="link-button"></input></div > {% endcomment %}
+        {% comment %} <div class="header-element"><button class="link-button">Theme</button></div > {% endcomment %}
+        <div class="header-element"><form method="post" action="{% url 'bsp:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="link-button" id="logout-btn">Logout</button>
+            </form>
+            {% comment %} <script> 
+              let theme = sessionStorage.getItem("userTheme");
+let homeBtn = document.querySelector("#home-btn");
+let themeBtn = document.querySelector("#theme-btn");
+
+if (theme === "dark") {
+    homeBtn.setAttribute("src", "/static/garage/images/home-light.png");
+    themeBtn.setAttribute("src", "/static/garage/images/theme-light.png");
+}
+            </script> {% endcomment %}
+            </div >
+        </div>
+      </div>
+    {% comment %} </nav>
+  </header> {% endcomment %}
+    {% comment %} {% block sidebar %}
+    {% endblock %} {% endcomment %}
+  <div class="content-body">
+  {% block content %}
+  {% endblock %}
+  </div>
+  {% block js %}
+  <script src="{% static 'bsp/js/script.js' %}"></script>
+  {% comment %} <script src="{% static 'garage/js/new.js' %}"></script> {% endcomment %}
+  {%endblock%}
+</body>
+</html>

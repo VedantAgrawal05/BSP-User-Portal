@@ -1,0 +1,239 @@
+.button     
+{/* shared */
+    background-color: transparent; 
+    color: white; 
+    border: 0.5px solid #93b0be;
+    border-radius: 5px;
+    padding: 5px 5px;
+}
+
+.button:hover {    
+    background-color: #1c354b;
+    color: white;
+}
+
+a:link, a:visited, a:hover, a:active
+{/* removes hyperlink formatting */
+    text-decoration: none;
+}
+
+.div3
+{ /*for unvisited links*/
+    background-color: transparent;
+    color: white;        /* text color */
+    padding: 15px 25px;    /* text padding: distance from edges */
+    text-align: center;
+    text-decoration: none;    /* removes the blue underline */
+    /* display: ; */
+    border-radius: 10px;    
+    align-items: center;
+    width: 13vw;
+    border: none;
+    outline: none;
+    font-family: "Quicksand Medium";
+    font-size: 18px;
+} 
+
+
+.div3:hover, .div3:active, .div3:visited 
+{/* for hovering over buttons */
+    background-color:  #93b0be;
+    padding: 15px 25px;
+    text-decoration: none; 
+    align-items: center;
+    color: black ;
+    transition-duration: 0.2s;
+    font-family: "Quicksand Medium";
+}
+
+tr {
+  text-align: center;
+}
+th, td {
+  border: 1px solid white;
+  border-collapse: collapse;
+  padding: 5px;
+}
+th {
+  background-color: #BCF8EC;
+}
+table {
+  /* align-self: center;
+   */
+   margin-left: auto;
+   margin-right: auto;
+  /* border-color: white;
+  border-width: 1px;
+  border-style:solid; */
+  border: 2px solid white;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+img{
+  height: 70vh;
+  width: 50vw;
+}
+
+
+
+
+.header {
+  /* background-color: rgba(60, 108, 162, 0.297);   */
+  /* background-color: #93b0be; */
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0px;
+  height: 40px;
+  display: flex;
+  align-items: left;
+  justify-content: space-between;
+  box-shadow: 0 0 25px 0 black;
+  background-color: #93b0be;  transition-duration:0s;
+
+}
+/* .header-dark {  background-color: #000815;  transition-duration: 1s;
+} */
+/* .header-light {  } */
+/* .header * {  
+    display: inline;  
+    }   */
+.header-left {
+  display: flex;
+  align-items: left;
+  /* justify-content: space-between; */
+}
+
+.header-right {
+  display: flex;
+  align-items: left;
+  justify-content: flex-end;
+  margin-right: 10px;
+}
+
+.header-element {
+  margin-left: 10px;
+  margin-top: 5px;
+  color: black;
+  /* background-color: red; */
+    text-decoration: none;
+}
+
+/* .header-element {
+
+} */
+
+body {
+  /* height: 100vh;
+  width: 100vw; */
+  padding: 70px 0;
+  text-align: center;
+  /*for all body to avoid overlapping with header */
+  color: black;
+  background-color: #CDE6F5;
+  /* background-color: #030E22; */
+  margin: 0 0 0 0;
+  transition-duration: 1s;
+}
+
+.content-body {
+  font-family: "Quicksand Medium";
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+  /* removes hyperlink formatting */
+  text-decoration: none;
+}
+
+/* a:link {
+  text-decoration: none;
+  color: white; */
+  /* font-size: 10px; */
+/* }
+
+a:hover {
+  color: lime;
+} */
+
+/* .inline {
+  display: inline;
+} */
+
+.link-button {
+  background: none;
+  /* color: white; */
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 1em;
+  font-family: "Quicksand Medium";
+
+  /* font-family: serif; */
+}
+
+#logout-btn {
+  border: 1px solid red;
+  padding-bottom: 4px;
+  color: black;
+  transition-duration: 1s;
+
+}
+
+/* .link-button:focus {
+  outline: none;
+  text-decoration: none; */
+  /* color: blue; */
+/* } */
+
+/* .link-button:active {
+        color:red;  
+      } */
+/* .link-button:hover {
+  color: lime;
+} */
+
+#home-btn,
+#theme-btn-light,
+#theme-btn-dark, #theme-btn {
+  height: 30px;
+  width: 30px;
+  transition-duration: 1s;
+
+}
+
+#home-btn:focus,
+#theme-btn-light:focus,
+#theme-btn-dark:focus, #theme-btn:focus  {
+  height: 30px;
+  width: 30px;
+}
+
+.text-div {
+
+  color: #8DA7BE;
+  color: #012A36;
+  color: #CDE6F5;
+  color: #BCF8EC;
+  color: #001514;
+  color: #7A8B99;
+  color: #8DA7BE;
+  color: #93b0be;
+  color: #1c354b;
+
+  color: #0a090cff;
+  color: #f0edeeff;
+  color: #07393cff;
+  color: #2c666eff;
+  color: #90ddf0ff;
+}
+
+/* CSS HEX
+--night: 
+--antiflash-white: 
+--midnight-green: 
+--caribbean-current: 
+--non-photo-blue:  */
