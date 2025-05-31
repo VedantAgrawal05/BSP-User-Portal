@@ -54,6 +54,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User, DepartmentList, DesignationList
 from django.contrib.auth.forms import AuthenticationForm
+from .models import User
+from django.forms.widgets import PasswordInput, TextInput
 
 # class CustomLoginForm(AuthenticationForm):
 #     def __init__(self, *args, **kwargs):
@@ -65,19 +67,36 @@ from django.contrib.auth.forms import AuthenticationForm
 #             'placeholder': 'Password'
 #         })
 
-class CustomLoginForm(AuthenticationForm):
+# class CustomAuthForm(AuthenticationForm):
+#     username = forms.CharField(widget=TextInput(attrs={'class':'validate','placeholder': 'Email'}))
+#     password = forms.CharField(widget=PasswordInput(attrs={'placeholder':'Password'}))
+
+class MyAuthForm(AuthenticationForm):
+    class Meta:
+        model = User
+        fields = ['username','password']
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(MyAuthForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget = forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'})
+        self.fields['username'].label = False
+        self.fields['password'].widget = forms.PasswordInput(attrs={'class': 'form-control', 'placeholder':'Password'}) 
+        self.fields['password'].label = False
 
-        self.fields['username'].widget.attrs.update({
-            'placeholder': 'Username',
-            'class': 'form-input',
-        })
 
-        self.fields['password'].widget.attrs.update({
-            'placeholder': 'Password',
-            'class': 'form-input',
-        })
+
+# class CustomLoginForm(AuthenticationForm):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+
+#         self.fields['username'].widget.attrs.update({
+#             'placeholder': 'Username',
+#             'class': 'form-input',
+#         })
+
+#         self.fields['password'].widget.attrs.update({
+#             'placeholder': 'Password',
+#             'class': 'form-input',
+#         })
 
 
 class SignUpForm(UserCreationForm):

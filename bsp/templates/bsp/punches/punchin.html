@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <p>Punched in, redirecting...</p>
+
+<script>
+    setTimeout(function() {
+        window.location.href = "{% url 'bsp:punch_home' %}";
+    }, 5000);
+</script>
+
+</body>
+</html>

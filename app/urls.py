@@ -17,10 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.contrib.auth.views import LoginView
+from bsp.forms import MyAuthForm
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('bsp/', include('bsp.urls')),
+    path('accounts/login/', LoginView.as_view(template_name='registration/login.html', authentication_form=MyAuthForm), name='login'),
     path("accounts/", include("django.contrib.auth.urls")),
     path('', RedirectView.as_view(pattern_name='bsp:home', permanent=True)),
 ]

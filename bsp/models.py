@@ -67,4 +67,68 @@ class User(AbstractUser):
         else:
             return today.year - born.year
         
+class CheckLog(models.Model):
+    #action id 1 is used to represent punch in, action id 2 represents punch out
+    action_id=models.PositiveSmallIntegerField("Action Id")
 
+    username=models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    date=models.DateField(auto_now_add=True)
+    time=models.TimeField(auto_now_add=True)
+
+    def __str__(self):
+        str1= f"{self.username} "
+        if self.action_id==1:
+            str1+="Punch-in"
+
+        elif self.action_id==2:
+            str1+="Punch-out"
+
+        return str1
+    
+    def check_dup_in(self,username):
+        curr_date = CheckLog.get_current_date()
+        recs = CheckLog.objects.filter(date=curr_date)
+        
+
+
+
+
+    def get_current(self):
+        return datetime.datetime.now()
+        
+
+    def get_current_date(self):
+        ab = CheckLog.get_current()
+        return ab.date()
+    
+
+
+# #similar to checklog, 1 is used to represent present. no entry signifies absent
+# class Attendance(models.Model):
+#     username=models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+#     date=models.DateField(default=datetime.date.today())
+#     was_present=models.PositiveSmallIntegerField("Present or Absent")
+
+#     def __str__(self):
+#         return f"{self.username} {self.was_present}"
+    
+
+# class PayDetails(models.Model):
+#     designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True)
+#     basic_salary= models.DecimalField(max_digits=10, decimal_places=2)
+#     allowances = models.DecimalField(max_digits=10, decimal_places=2)
+#     deductions = models.DecimalField(max_digits=10, decimal_places=2)
+#     net_salary= models.DecimalField(max_digits=10, decimal_places=2)
+
+#     def __str__(self):
+#         return f"{self.designation_id} {self.net_salary}"
+
+
+# class EmployeeDetails(models.Model):
+#     username = models.ForeignKey(User, on_delete=models.DELETE)
+#     res_address = models.CharField(max_length=300)
+#     corr_address = models.CharField(max_length=300)
+#     phone_number = models.BigIntegerField()
+#     emergency_contact_name = models.CharField(max_length=100)
+#     emergency_contact_number = models.BigIntegerField(max_length=100)
+    
