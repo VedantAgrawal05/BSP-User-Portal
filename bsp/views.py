@@ -32,7 +32,7 @@ def homepage(request):
     if user_is_superuser(request):
         context["is_superuser"]=True
 
-    context["time"] = timezone.now().time()
+    # context["time"] = timezone.now().time()
 
     return render(request, "bsp/MainPages/homepage.html", context)
 
@@ -80,22 +80,30 @@ def punching_home(request):
 def punch_in(request):
     uname=request.user.username
     user_obj = User.objects.get(username=uname)
-
-    new_pin = CheckLog(username=user_obj, action_id=1)
-    new_pin.save()
-
     context={}
+
+    to_allow = CheckLog.check_dup_in(username=user_obj)
+    if to_allow:
+        new_pin = CheckLog(username=user_obj, action_id=1, shift=CheckLog.match_time_to_shift(type="shift_start"))
+        new_pin.save()
+
+    else:
+        context={"flag":1}
     return render(request, "bsp/punches/punchin.html", context)
 
 @login_required(login_url="/accounts/login/")
 def punch_out(request):
     uname=request.user.username
     user_obj = User.objects.get(username=uname)
-
-    new_put = CheckLog(username=user_obj, action_id=2)
-    new_put.save()
-    
     context={}
+
+    to_allow = CheckLog.check_dup_out(username=user_obj)
+    if to_allow:
+        new_put = CheckLog(username=user_obj, action_id=2, shift=CheckLog.match_time_to_shift(type="shift_end"))
+        new_put.save()
+
+    else:
+        context = {"flag":1}
     return render(request, "bsp/punches/punchout.html", context)
 
 

@@ -31,6 +31,7 @@
         <th>Action</th>
         <th>Time</th>
         <th>Date</th>
+        <th>Shift</th>
     </tr>
     {% for rec in punch_logs %}
     <tr>
@@ -38,6 +39,7 @@
         <td>{{rec.action_name}}</td>
         <td>{{rec.time}}</td>
         <td>{{rec.date}}</td>
+        <td>{{rec.shift}}</td>
         {% comment %} <td>{{}}</td> {% endcomment %}
     </tr>
     {% endfor %}

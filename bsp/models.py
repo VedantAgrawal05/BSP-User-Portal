@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser#, User
 import datetime
+
 # Create your models here.
 class DepartmentList(models.Model):
     department_id = models.PositiveSmallIntegerField('Department ID', primary_key=True)
@@ -74,6 +75,7 @@ class CheckLog(models.Model):
     username=models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     date=models.DateField(auto_now_add=True)
     time=models.TimeField(auto_now_add=True)
+    shift=models.CharField(max_length=1, null=True, default="D")
 
     def __str__(self):
         str1= f"{self.username} "
@@ -85,32 +87,130 @@ class CheckLog(models.Model):
 
         return str1
     
-    def check_dup_in(self,username):
+    def check_dup_in(username):
         curr_date = CheckLog.get_current_date()
-        recs = CheckLog.objects.filter(date=curr_date)
+        recs = CheckLog.objects.filter(username= username, date=curr_date, action_id=1).order_by('-time')  
+
+        curr_time = CheckLog.get_current()
+        # diff = curr_time - datetime.timedelta(minutes=30)
+        diff = (curr_time - datetime.timedelta(minutes=10)).time()
+
+        # for i in recs:
+        #     if diff < i.time:
+        #         return False
+        #     elif diff >  i.time:
+        #         return True
+        #     else:
+        #         return False
+
+        try:
+            to_check = recs[0]
+        except IndexError:
+            return True
+        
+        if diff < to_check.time:
+            return False
+        elif diff >  to_check.time:
+            return True
+        else:
+            return False
+
+    
+
+    def check_dup_out(username):
+        curr_date = CheckLog.get_current_date()
+        recs = CheckLog.objects.filter(username= username, date=curr_date, action_id=2).order_by('-time')  
+
+        curr_time = CheckLog.get_current()
+        # diff = curr_time - datetime.timedelta(minutes=30)
+        diff = (curr_time - datetime.timedelta(minutes=10)).time()
+
+
+        # for i in recs:
+        #     if diff < i.time:
+        #         return False
+        #     elif diff >  i.time:
+        #         return True
+        #     else:
+        #         return False
         
 
+        try:
+            to_check = recs[0]
+        except IndexError:
+            return True
+        
+        if diff < to_check.time:
+            return False
+        elif diff >  to_check.time:
+            return True
+        else:
+            return False
+    
 
-
-
-    def get_current(self):
+    def get_current():
         return datetime.datetime.now()
         
-
-    def get_current_date(self):
+    def get_current_date():
         ab = CheckLog.get_current()
         return ab.date()
+
+    def get_current_time():
+        ab = CheckLog.get_current()
+        return ab.time()
     
 
 
-# #similar to checklog, 1 is used to represent present. no entry signifies absent
-# class Attendance(models.Model):
-#     username=models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-#     date=models.DateField(default=datetime.date.today())
-#     was_present=models.PositiveSmallIntegerField("Present or Absent")
 
-#     def __str__(self):
-#         return f"{self.username} {self.was_present}"
+    def match_time_to_shift(type):
+        # Current time
+        now = CheckLog.get_current_time()
+
+        # Define time points (you can add more)
+        time_points_start = {
+            datetime.time(6, 0): "A",
+            datetime.time(9, 0): "G",
+            datetime.time(14, 0): "B",
+            datetime.time(22, 0): "C",
+        }
+        
+        time_points_end = {
+            datetime.time(14, 0): "A",
+            datetime.time(17, 0): "G",
+            datetime.time(22, 0): "B",
+            datetime.time(6, 0): "C",
+        }
+
+        # Tolerance in minutes
+        tolerance = datetime.timedelta(minutes=30)
+
+        # Convert current time to datetime for comparison
+        now_dt = datetime.datetime.combine(datetime.datetime.today(), now)
+
+        if type=="start" or type==0 or type=="shift_start":
+            for t_point, value in time_points_start.items():
+                point_dt = datetime.datetime.combine(datetime.datetime.today(), t_point)
+                if abs(now_dt - point_dt) <= tolerance:
+                    return value
+
+        elif type=="end" or type==1 or type=="shift_end":
+            for t_point, value in time_points_end.items():
+                point_dt = datetime.datetime.combine(datetime.datetime.today(), t_point)
+                if abs(now_dt - point_dt) <= tolerance:
+                    return value
+
+        # Default unique value if no match
+        return "D"
+
+
+#similar to checklog, 1 is used to represent present. no entry signifies absent
+class Attendance(models.Model):
+    username=models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    date=models.DateField(default=datetime.date.today())
+    was_present=models.PositiveSmallIntegerField("Present or Absent")
+
+    def __str__(self):
+        return f"{self.username} {self.was_present}"
     
 
 # class PayDetails(models.Model):
