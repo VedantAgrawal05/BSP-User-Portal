@@ -527,6 +527,7 @@
                 <a href="#" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item">Help & Support</a>
                 <a href="{% url 'bsp:punch_home' %}" class="dropdown-item">Punch</a>
+                <a href="{% url 'bsp:attendance_hist' %}" class="dropdown-item">Attendance</a>
                    {% if is_dept_hr%}
                 <a href="{% url 'bsp:hr_dash' %}" class="dropdown-item">HR Dashboard</a>
                 {% endif %}
@@ -550,27 +551,27 @@
             <div class="card">
                 <h2 class="card-title">📊 Weekly Attendance</h2>
                 <div class="attendance-chart">
-                    <div class="chart-bar" style="--height: 80%; height: 80%;">
+                    <div class="chart-bar" style="--height: {{info.weekly_hours.0}}; height: {{info.weekly_hours.0}};">
                         <span class="chart-label">Mon</span>
                     </div>
-                    <div class="chart-bar" style="--height: 100%; height: 100%;">
+                    <div class="chart-bar" style="--height: {{info.weekly_hours.1}}; height: {{info.weekly_hours.1}};">
                         <span class="chart-label">Tue</span>
                     </div>
-                    <div class="chart-bar" style="--height: 90%; height: 90%;">
+                    <div class="chart-bar" style="--height: {{info.weekly_hours.2}}; height: {{info.weekly_hours.2}};">
                         <span class="chart-label">Wed</span>
                     </div>
-                    <div class="chart-bar" style="--height: 95%; height: 95%;">
+                    <div class="chart-bar" style="--height: {{info.weekly_hours.3}}; height: {{info.weekly_hours.3}};">
                         <span class="chart-label">Thu</span>
                     </div>
-                    <div class="chart-bar" style="--height: 85%; height: 85%;">
+                    <div class="chart-bar" style="--height: {{info.weekly_hours.4}}; height: {{info.weekly_hours.4}};">
                         <span class="chart-label">Fri</span>
                     </div>
-                    <div class="chart-bar" style="--height: 70%; height: 70%;">
+                    <div class="chart-bar" style="--height: {{info.weekly_hours.5}}; height: {{info.weekly_hours.5}};">
                         <span class="chart-label">Sat</span>
                     </div>
-                    <div class="chart-bar" style="--height: 0%; height: 0%;">
+                    {% comment %} <div class="chart-bar" style="--height: 0%; height: 0%;">
                         <span class="chart-label">Sun</span>
-                    </div>
+                    </div> {% endcomment %}
                 </div>
             </div>
 
@@ -579,19 +580,19 @@
                 <h2 class="card-title">📈 This Month</h2>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <span class="stat-number">22</span>
+                        <span class="stat-number">{{info.present_count}}</span>
                         <span class="stat-label">Days Present</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">2</span>
+                        <span class="stat-number">{{info.absent_count}}</span>
                         <span class="stat-label">Days Absent</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">168</span>
+                        <span class="stat-number">{{info.total_hours}}</span>
                         <span class="stat-label">Hours Worked</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">92%</span>
+                        <span class="stat-number">{{info.rate}}%</span>
                         <span class="stat-label">Attendance Rate</span>
                     </div>
                 </div>
@@ -643,28 +644,24 @@
             <!-- Recent Activity -->
             <div class="card">
                 <h2 class="card-title">🕒 Recent Activity</h2>
+
+                {% if info.len_of_recents  %}
+                <ul class="recent-activity">
+                    {% for iter in info.recent_activities%}
+                    <li class="activity-item">
+                        <div class="activity-dot"></div>
+                        <div class="activity-text">{{iter.0}} at {{iter.1}}</div>
+                        <div class="activity-time">{{iter.2}}</div>
+                    </li>
+                    {%endfor%}
+                </ul>
+                {%else%}
                 <ul class="recent-activity">
                     <li class="activity-item">
-                        <div class="activity-dot"></div>
-                        <div class="activity-text">Checked in at 9:15 AM</div>
-                        <div class="activity-time">Today</div>
-                    </li>
-                    <li class="activity-item">
-                        <div class="activity-dot"></div>
-                        <div class="activity-text">Checked out at 6:30 PM</div>
-                        <div class="activity-time">Yesterday</div>
-                    </li>
-                    <li class="activity-item">
-                        <div class="activity-dot"></div>
-                        <div class="activity-text">Applied for casual leave</div>
-                        <div class="activity-time">2 days ago</div>
-                    </li>
-                    <li class="activity-item">
-                        <div class="activity-dot"></div>
-                        <div class="activity-text">Updated profile information</div>
-                        <div class="activity-time">1 week ago</div>
+                        <div class="activity-text">No information to show</div>
                     </li>
                 </ul>
+                {%endif%}
             </div>
         </div>
     </main>

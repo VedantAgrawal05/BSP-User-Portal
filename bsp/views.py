@@ -7,7 +7,7 @@ from bsp.forms import SignUpForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 # from django.contrib.auth.models import User
-from .models import User, DesignationList, DepartmentList, CheckLog
+from .models import User, DesignationList, DepartmentList, CheckLog, Attendance
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core.exceptions import ValidationError
@@ -18,7 +18,11 @@ from django.http import HttpResponseForbidden
 
 @login_required(login_url="/accounts/login/")
 def homepage(request):
+    uname=request.user.username
+    user_obj = User.objects.get(username=uname)
+    info = Attendance.get_info(user_obj)
     context={
+        "info":info,
         "is_dept_hr": False,
         "is_read_only_superuser": False,
         "is_superuser": False,
@@ -112,7 +116,9 @@ def punch_history(request):
     uname=request.user.username
     user_obj = User.objects.get(username=uname)
     matched_recs = CheckLog.objects.filter(username=user_obj)
-
+    context={
+        "record_exists":0
+    }
     for i in matched_recs:
         if i.action_id==1:
             i.action_name="Punch-in"
@@ -125,6 +131,23 @@ def punch_history(request):
             "record_exists": 1,
     }
     return render(request, "bsp/punches/phist.html", context)
+
+
+@login_required(login_url="/accounts/login/")
+def attendance_history(request):
+    uname=request.user.username
+    # user_obj = User.objects.get(username=uname)
+    # matched_recs = CheckLog.objects.filter(username=user_obj)
+    records = Attendance.get_formatted_values(uname)
+    context={
+        "record_exists":0
+    }
+    if records:
+        context = {
+            "punch_logs": records,
+            "record_exists": 1,
+    }
+    return render(request, "bsp/attendance/ahist.html", context)
 
 
 

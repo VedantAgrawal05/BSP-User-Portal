@@ -16,6 +16,7 @@ urlpatterns = [
     path("punch-in/", views.punch_in, name="punch_in"),
     path("punch-out/", views.punch_out, name="punch_out"),
     path("punch/punches/", views.punch_history, name="punch_log"),
+    path("attendance/", views.attendance_history, name="attendance_hist"),
 
 
 
