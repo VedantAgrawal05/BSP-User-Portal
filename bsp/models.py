@@ -203,15 +203,20 @@ class CheckLog(models.Model):
         return "D"
 
 
-#similar to checklog, 1 is used to represent present. no entry signifies absent
+#similar to checklog, 1 is used to represent present. no entry or 0 signifies absent
 class Attendance(models.Model):
     username=models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     date=models.DateField(default=datetime.date.today())
-    was_present=models.PositiveSmallIntegerField("Present or Absent")
+    was_present=models.PositiveSmallIntegerField("Present or Absent", default=0)
+    shift=models.CharField(max_length=1, null=True, default="D")
+
 
     def __str__(self):
         return f"{self.username} {self.was_present}"
     
+
+    def record_updater(self, instance):
+        print("yoooo")
 
 # class PayDetails(models.Model):
 #     designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True)
