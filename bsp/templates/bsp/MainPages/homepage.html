@@ -339,7 +339,10 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(226, 232, 240, 0.1);
             border-radius: 12px;
-            padding: 2rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-top: 1rem;
+            padding-bottom: 0.75rem;
             max-width: 500px;
             width: 90%;
             max-height: 90vh;
@@ -520,7 +523,7 @@
             </div>
         </div>
         <div class="user-section">
-            <span class="user-name">Rajesh Kumar</span>
+            <span class="user-name">{{info.employee_details.full_name}}</span>
             <button class="dropdown-toggle" onclick="toggleDropdown()"></button>
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="#" class="dropdown-item" onclick="showPersonalInfo()">Personal Information</a>
@@ -601,19 +604,19 @@
             <div class="card">
                     <div class="info-item">
                         <span class="info-label">Basic Salary:</span>
-                        <span class="info-value">₹45,000</span>
+                        <span class="info-value">{{info.salary_details.basic_salary}}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Allowances:</span>
-                        <span class="info-value">₹15,000</span>
+                        <span class="info-value">{{info.salary_details.allowances}}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Deductions:</span>
-                        <span class="info-value">₹8,000</span>
+                        <span class="info-value">{{info.salary_details.deductions}}</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Net Salary:</span>
-                        <span class="info-value">₹52,000</span>
+                        <span class="info-value">{{info.salary_details.net_salary}}</span>
                     </div>
                     <button class="btn" onclick="viewPayslip()">Download Payslip</button>
                     </div>
@@ -676,39 +679,43 @@
             <div class="card" style="background: transparent; padding: 0; border: none; box-shadow: none;">
                 <div class="info-item">
                     <span class="info-label">Employee ID</span>
-                    <span class="info-value">SAIL001234</span>
+                    <span class="info-value">{{info.employee_details.bsp_id}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Full Name</span>
-                    <span class="info-value">Rajesh Kumar Singh</span>
+                    <span class="info-value">{{info.employee_details.full_name}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Department</span>
-                    <span class="info-value">Production</span>
+                    <span class="info-value">{{info.employee_details.department}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Position</span>
-                    <span class="info-value">Machine Operator</span>
+                    <span class="info-value">{{info.employee_details.designation}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Date of Joining</span>
-                    <span class="info-value">15-Mar-2020</span>
+                    <span class="info-value">{{info.employee_details.date_joined}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Email</span>
-                    <span class="info-value">rajesh.kumar@bhilaissteel.com</span>
+                    <span class="info-value">{{info.employee_details.email}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Phone</span>
-                    <span class="info-value">+91 98765 43210</span>
+                    <span class="info-value">{{info.employee_details.phone}}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Address</span>
-                    <span class="info-value">Sector 4, Bhilai, Chhattisgarh</span>
+                    <span class="info-label">Residential Address</span>
+                    <span class="info-value">{{info.employee_details.res_address}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Correspondence Address</span>
+                    <span class="info-value">{{info.employee_details.corr_address}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Emergency Contact</span>
-                    <span class="info-value">Sunita Kumar - +91 98765 43211</span>
+                    <span class="info-value">{{info.employee_details.emergency_contact}}</span>
                 </div>
             </div>
         </div>

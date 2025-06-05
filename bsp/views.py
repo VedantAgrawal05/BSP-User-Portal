@@ -7,7 +7,7 @@ from bsp.forms import SignUpForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 # from django.contrib.auth.models import User
-from .models import User, DesignationList, DepartmentList, CheckLog, Attendance
+from .models import User, DesignationList, DepartmentList, CheckLog, Attendance, CommonClass
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core.exceptions import ValidationError
@@ -20,7 +20,7 @@ from django.http import HttpResponseForbidden
 def homepage(request):
     uname=request.user.username
     user_obj = User.objects.get(username=uname)
-    info = Attendance.get_info(user_obj)
+    info = CommonClass.get_info(user_obj)
     context={
         "info":info,
         "is_dept_hr": False,

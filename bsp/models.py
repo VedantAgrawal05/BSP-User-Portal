@@ -363,6 +363,77 @@ class Attendance(models.Model):
                 break
         return fin
 
+    def get_current_week_dates():
+        today = date.today()
+        start_of_week = today - datetime.timedelta(days=today.weekday())  # Monday
+        return [start_of_week + datetime.timedelta(days=i) for i in range((today - start_of_week).days + 1)]
+
+class PayDetails(models.Model):
+    designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True)
+    basic_salary= models.DecimalField(max_digits=10, decimal_places=2)
+    allowances = models.DecimalField(max_digits=10, decimal_places=2)
+    deductions = models.DecimalField(max_digits=10, decimal_places=2)
+    net_salary= models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.designation_id} {self.net_salary}"
+    
+    def get_sal_details(uobj):
+        desgn = uobj.designation_id
+        # dobj = DesignationList.objects.get(designation_id=desgn)
+        sal_rec = PayDetails.objects.get(designation_id=desgn)
+        basic_salary = CommonClass.format_indian_currency(sal_rec.basic_salary)
+        allowances =  CommonClass.format_indian_currency(sal_rec.allowances)
+        deductions=  CommonClass.format_indian_currency(sal_rec.deductions)
+        net_salary =  CommonClass.format_indian_currency(sal_rec.net_salary)
+        sal_details = {
+            "basic_salary":basic_salary,
+            "allowances":allowances,
+            "deductions":deductions,
+            "net_salary":net_salary,
+        }
+        return sal_details
+
+class EmployeeDetails(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    res_address = models.CharField(max_length=300)
+    corr_address = models.CharField(max_length=300)
+    phone_number = models.BigIntegerField()
+    emergency_contact_name = models.CharField(max_length=100)
+    emergency_contact_number = models.BigIntegerField(max_length=100)
+
+
+    def format_code(number):
+        """
+    Format the number as 'BSP00000' with zero padding to make it 5 digits.
+    """
+        return f"BSP{number:05d}"
+
+    def get_employee_details(uobj):
+        rec = EmployeeDetails.objects.get(username=uobj)
+        uid= uobj.id
+        desgn_id=uobj.designation_id
+        dept_id=uobj.department_id
+        bsp_id = EmployeeDetails.format_code(uid)
+        # dept_rec = DepartmentList.objects.get(designation_id=desgn_id)
+        
+        emp_details= {
+            "bsp_id":bsp_id,
+            "full_name":f"{uobj.first_name} {uobj.last_name}",
+            "department": dept_id.department_name,
+            "designation":desgn_id.designation_name,
+            "date_joined":uobj.date_joined,
+            "email":uobj.email,
+            "phone":rec.phone_number,
+            "res_address":rec.res_address,
+            "corr_address":rec.corr_address,
+            "emergency_contact":f'{rec.emergency_contact_name} - {rec.emergency_contact_number}',
+
+        }
+        return emp_details
+
+
+class CommonClass():
     def get_info(uobj):
         Attendance.absent_days_populator(uobj)
         # recs = Attendance.objects.filter(username=uobj).sort_by('-date')[:35]
@@ -410,31 +481,34 @@ class Attendance(models.Model):
         info["recent_activities"]=recent_activities
         info["len_of_recents"]=len(recent_activities)
 
+        salay_details = PayDetails.get_sal_details(uobj)
+        info["salary_details"]=salay_details
+
+        employee_details = EmployeeDetails.get_employee_details(uobj)
+        info["employee_details"]=employee_details
+
+
         return info
-
-
-
-    def get_current_week_dates():
-        today = date.today()
-        start_of_week = today - datetime.timedelta(days=today.weekday())  # Monday
-        return [start_of_week + datetime.timedelta(days=i) for i in range((today - start_of_week).days + 1)]
-
-# class PayDetails(models.Model):
-#     designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True)
-#     basic_salary= models.DecimalField(max_digits=10, decimal_places=2)
-#     allowances = models.DecimalField(max_digits=10, decimal_places=2)
-#     deductions = models.DecimalField(max_digits=10, decimal_places=2)
-#     net_salary= models.DecimalField(max_digits=10, decimal_places=2)
-
-#     def __str__(self):
-#         return f"{self.designation_id} {self.net_salary}"
-
-
-# class EmployeeDetails(models.Model):
-#     username = models.ForeignKey(User, on_delete=models.DELETE)
-#     res_address = models.CharField(max_length=300)
-#     corr_address = models.CharField(max_length=300)
-#     phone_number = models.BigIntegerField()
-#     emergency_contact_name = models.CharField(max_length=100)
-#     emergency_contact_number = models.BigIntegerField(max_length=100)
     
+    def format_indian_currency(number):
+        formatted = CommonClass.indian_currency_commas(number)
+        str1 = f"₹{formatted}"
+        return str1
+    
+    def indian_currency_commas(number):    
+        number = int(round(number))  # Remove decimals
+        num_str = str(number)
+        if len(num_str) <= 3:
+            return num_str
+        else:
+            # Split last 3 digits and the rest
+            last_three = num_str[-3:]
+            remaining = num_str[:-3]
+            # Add commas after every 2 digits in the remaining part
+            parts = []
+            while len(remaining) > 2:
+                parts.insert(0, remaining[-2:])
+                remaining = remaining[:-2]
+            if remaining:
+                parts.insert(0, remaining)
+            return ','.join(parts) + ',' + last_three
