@@ -117,8 +117,6 @@ class CheckLog(models.Model):
         else:
             return False
 
-    
-
     def check_dup_out(username):
         curr_date = CheckLog.get_current_date()
         recs = CheckLog.objects.filter(username= username, date=curr_date, action_id=2).order_by('-time')  
@@ -161,8 +159,6 @@ class CheckLog(models.Model):
         ab = CheckLog.get_current()
         return ab.time()
     
-
-
 
     def match_time_to_shift(type):
         # Current time
@@ -258,8 +254,343 @@ class CheckLog(models.Model):
         else:
             years = days // 365
             return f"{years} years ago"
+        
+    def get_todays_checkins_for_dept(uobj):
+        # dept = DepartmentList.objects.get()
+        dept = uobj.department_id
+        # dobj = DesignationList.objects.get(designation_id=desgn)
+        # dobj = DepartmentList.objects.get(department_id=dept)
+        # sal_
+        info={}
+        # rec = CheckLog.objects.get(designation_id=desgn)
+        users_in_dept = User.objects.filter(department_id=dept)
+        total_users = len(users_in_dept)
+
+        tod = CheckLog.get_current_date()
+
+        todays_checkins = CheckLog.objects.filter(action_id=1, date=tod)
+        # print(CheckLog.objects.filter(action_id=1, date=tod).query)
+
+        present_count =0
+        absent_count =0
+        late_count=0
+
+        # for i in users_in_dept:
+        #     for j in todays_checkins:
+        #         if j.username==i:
+        #             ch_in = j.time
+        #             sh = j.shift
+        #             if CheckLog.check_if_user_late(ch_in, sh):
+        #                 late_count+=1
+        #                 present_count+=1
+        #                 break
+
+        #             else:
+        #                 present_count+=1
+        #             # present_users.append(i)
+                    
+        #         else:
+        #             absent_count+=1
+
+        found = False
+        for i in users_in_dept:
+            for j in todays_checkins:
+                if j.username==i:
+                    ch_in = j.time
+                    sh = j.shift
+                    if CheckLog.check_if_user_late(ch_in, sh):
+                        late_count+=1
+                    present_count+=1
+                    found = True
+                    break
+
+                    # else:
+                        # present_count+=1
+                    # present_users.append(i)
+
+            if not found:
+                    absent_count+=1
+                    found=False
+
+        try:
+            chk = (present_count / (present_count + absent_count ))*100
+            attendance_rate= round(chk, 2)
+        except ZeroDivisionError:
+            attendance_rate=0
+
+        # for k in present_users:
+        info["present_count"]=present_count
+        info["absent_count"]=absent_count
+        info["late_count"]=late_count
+        info["total_employees"]=total_users
+        info["rate"]=attendance_rate
+
+        return info
+
+        
+    def get_frequent_late_arrivals(uobj):
+        # dept = DepartmentList.objects.get()
+        dept = uobj.department_id
+        # dobj = DesignationList.objects.get(designation_id=desgn)
+        # dobj = DepartmentList.objects.get(department_id=dept)
+        # sal_
+        freq_late_count=0
+        late_count = 0
+        # rec = CheckLog.objects.get(designation_id=desgn)
+        users_in_dept = User.objects.filter(department_id=dept)
+
+        for usr in users_in_dept:
+            checks = CheckLog.objects.filter(action_id=1, username=usr).order_by("-date")[:30]
+            for chk in checks:
+                ch_in = chk.time
+                sh = chk.shift
+                if CheckLog.check_if_user_late(ch_in, sh):
+                    late_count+=1
+
+            if late_count/30 > 0.35: #more than 355 arrival was late
+                freq_late_count+=1
+            
+            late_count=0
+
+        # found = False
+        # for i in users_in_dept:
+        #     for j in todays_checkins:
+        #         if j.username==i:
+        #             ch_in = j.time
+        #             sh = j.shift
+        #             if CheckLog.check_if_user_late(ch_in, sh):
+        #                 late_count+=1
+        #             present_count+=1
+        #             found = True
+        #             break
+
+        #             # else:
+        #                 # present_count+=1
+        #             # present_users.append(i)
+
+        #     if not found:
+        #             absent_count+=1
+        #             found=False
+
+        # try:
+        #     chk = (present_count / (present_count + absent_count ))*100
+        #     attendance_rate= round(chk, 2)
+        # except ZeroDivisionError:
+        #     attendance_rate=0
+
+        # for k in present_users:
+        # info["present_count"]=present_count
+        # info["absent_count"]=absent_count
+        # info["late_count"]=late_count
+        # info["total_employees"]=total_users
+        # info["rate"]=attendance_rate
 
 
+        return freq_late_count
+
+
+    def get_todays_checkins_for_all_dept():
+        # dept = DepartmentList.objects.get()
+        # dept = uobj.department_id
+        # dobj = DesignationList.objects.get(designation_id=desgn)
+        # dobj = DepartmentList.objects.get(department_id=dept)
+        # sal_
+        info={}
+        # rec = CheckLog.objects.get(designation_id=desgn)
+        all_users = User.objects.all()
+        total_users = len(all_users)
+        all_depts = DepartmentList.objects.all()
+        tod = CheckLog.get_current_date()
+        todays_checkins = CheckLog.objects.filter(action_id=1, date=tod)
+        # print(CheckLog.objects.filter(action_id=1, date=tod).query)
+
+        dep_info = {}
+        # absent_count = [] 
+        d1 = {}
+
+        for i in all_depts:
+            if i.department_id==0:
+                continue
+            d1 = {"label":i.department_name, "height":0, "present_count":0, "absent_count":0}
+            dep_info[i.department_name] = d1
+            d1={}
+        # late_count= 0
+        found = False
+
+    #for i in all depts
+        # for dep in all_depts:
+        for usr in all_users:
+            for chkin in todays_checkins:
+                    #dept ==i
+                if chkin.username==usr:
+                    # ch_in = chkin.time
+                    # sh = chkin.shift
+                    # if CheckLog.check_if_user_late(ch_in, sh):
+                    #     late_count+=1
+            
+                    dep_info[usr.department_id.department_name]["present_count"]+=1
+                    found = True
+                    break
+
+                    # else:
+                        # present_count+=1
+                    # present_users.append(i)
+
+            if not found:
+
+                    dep_info[usr.department_id.department_name]["absent_count"]+=1
+                    found=False
+
+        for iter in dep_info:
+            pc= dep_info[iter]["present_count"]
+            ac= dep_info[iter]["absent_count"]
+            try:
+                chk = (pc / (pc + ac ))*200
+                hgt= round(chk, 1)
+            except ZeroDivisionError:
+                hgt = 0
+            dep_info[iter]["height"] = hgt
+            
+
+        # # for k in present_users:
+        # info["present_count"]=present_count
+        # info["absent_count"]=absent_count
+        # # info["late_count"]=late_count
+        # info["total_employees"]=total_users
+        # info["rate"]=attendance_rate
+        lst1 = [dep_info[x] for x in dep_info] 
+
+        for r in lst1:
+            if r["label"]=="Human Resources":
+                r["label"]="HR"
+            elif r["label"]=="Research and Development":
+                r["label"]="R & D"
+            elif r["label"]=="Customer Support":
+                r["label"]="Support"
+            elif r["label"]=="IT Services":
+                r["label"]="IT"
+            
+        return lst1
+
+
+
+    def get_total_present_today():
+        # dept = DepartmentList.objects.get()
+        # dept = uobj.department_id
+        # dobj = DesignationList.objects.get(designation_id=desgn)
+        # dobj = DepartmentList.objects.get(department_id=dept)
+        # sal_
+        # info={}
+        # rec = CheckLog.objects.get(designation_id=desgn)
+        # all_users = User.objects.all()
+        # total_users = len(all_users)
+        # all_depts = DepartmentList.objects.all()
+        tod = CheckLog.get_current_date()
+        todays_checkins = CheckLog.objects.filter(action_id=1, date=tod).count()
+        return todays_checkins
+        # print(CheckLog.objects.filter(action_id=1, date=tod).query)
+
+    #     # dep_info = {}
+    #     # absent_count = [] 
+    #     # d1 = {}
+
+    #     # for i in all_depts:
+    #         # if i.department_id==0:
+    #             # continue
+    #         # d1 = {"label":i.department_name, "height":0, "present_count":0, "absent_count":0}
+    #         # dep_info[i.department_name] = d1
+    #         # d1={}
+    #     # late_count= 0
+    #     # found = False
+
+    # #for i in all depts
+    #     # for dep in all_depts:
+    #     for usr in all_users:
+    #         for chkin in todays_checkins:
+    #                 #dept ==i
+    #             if chkin.username==usr:
+    #                 # ch_in = chkin.time
+    #                 # sh = chkin.shift
+    #                 # if CheckLog.check_if_user_late(ch_in, sh):
+    #                 #     late_count+=1
+            
+    #                 dep_info[usr.department_id.department_name]["present_count"]+=1
+    #                 found = True
+    #                 break
+
+    #                 # else:
+    #                     # present_count+=1
+    #                 # present_users.append(i)
+
+    #         if not found:
+
+    #                 dep_info[usr.department_id.department_name]["absent_count"]+=1
+    #                 found=False
+
+    #     for iter in dep_info:
+    #         pc= dep_info[iter]["present_count"]
+    #         ac= dep_info[iter]["absent_count"]
+    #         try:
+    #             chk = (pc / (pc + ac ))*200
+    #             hgt= round(chk, 1)
+    #         except ZeroDivisionError:
+    #             hgt = 0
+    #         dep_info[iter]["height"] = hgt
+            
+
+    #     # # for k in present_users:
+    #     # info["present_count"]=present_count
+    #     # info["absent_count"]=absent_count
+    #     # # info["late_count"]=late_count
+    #     # info["total_employees"]=total_users
+    #     # info["rate"]=attendance_rate
+    #     lst1 = [dep_info[x] for x in dep_info] 
+
+    #     for r in lst1:
+    #         if r["label"]=="Human Resources":
+    #             r["label"]="HR"
+    #         elif r["label"]=="Research and Development":
+    #             r["label"]="R & D"
+    #         elif r["label"]=="Customer Support":
+    #             r["label"]="Support"
+    #         elif r["label"]=="IT Services":
+    #             r["label"]="IT"
+            
+    #     return lst1
+
+
+    def check_if_user_late(time, shift):
+        dt = datetime.date(2000,1,5)
+        time_dt = datetime.datetime.combine(dt, time)
+
+        if shift=="A":
+            shift_time = datetime.time(6,0)
+
+        elif shift=="G":
+            shift_time = datetime.time(9,0)
+
+        elif shift=="B":
+            shift_time = datetime.time(14,0)
+
+        elif shift=="C":
+            shift_time = datetime.time(22,0)
+
+        elif shift=="D":
+            return 1
+                
+        comp_dt = datetime.datetime.combine(dt, shift_time)
+        zero_time = datetime.timedelta(minutes=0)
+        grace_time = datetime.timedelta(minutes=10)
+        if (comp_dt - time_dt)>zero_time:
+            return 0                
+
+        else:
+            if (time_dt - comp_dt)>grace_time:
+                return 1
+            
+            else: 
+                return 0
+            
 
 #similar to checklog, 1 is used to represent present. no entry or 0 signifies absent. 2 will represent user was there but did not work enough for full attendance
 class Attendance(models.Model):
@@ -298,16 +629,18 @@ class Attendance(models.Model):
                 #for was_present column
                 if iter.was_present == 0:
                     iter.was_present="Absent"
+                    iter.attend_class="status-absent"
                 elif iter.was_present == 1:
                     iter.was_present="Present"
+                    iter.attend_class="status-present"
                 elif iter.was_present == 2:
                     iter.was_present="Partial Day"
+                    iter.attend_class="status-partial"
         else:
             user_recs=[]
             
         return user_recs
                 
-
 
     def absent_days_populator(uobj):
         user_obj = uobj
@@ -368,6 +701,67 @@ class Attendance(models.Model):
         start_of_week = today - datetime.timedelta(days=today.weekday())  # Monday
         return [start_of_week + datetime.timedelta(days=i) for i in range((today - start_of_week).days + 1)]
 
+    def get_attendance_percentage(uobj):
+        user_obj = uobj
+        Attendance.absent_days_populator(uobj)
+        # user_obj = User.objects.get(username=uname)
+        absent_count = 0
+        present_count = 0
+        logs = Attendance.objects.filter(username=user_obj).order_by("-date")[:30]
+        for iter in logs:
+            if iter.was_present==1:
+                present_count += 1
+            else:
+                absent_count += 1
+
+       
+        chk = (present_count / (present_count + absent_count))*100
+        rate= round(chk, 2)
+
+        return rate
+    
+    def get_attendance_rates(hr_uobj):
+        dept = hr_uobj.department_id
+        users_in_dept = User.objects.filter(department_id=dept)
+        users_attendances = []
+        for usr in users_in_dept:
+            atnd = Attendance.get_attendance_percentage(usr)
+            users_attendances.append(atnd)
+
+        high_count = 0
+        low_count = 0
+
+        for i in users_attendances:
+            if i>=95:
+                high_count+=1
+            elif i<85:
+                low_count+=1
+
+        # attendance_rate = {
+        #     "high":high_count,
+        #     "low":low_count,
+        # }
+
+        return high_count, low_count
+        
+    def get_average_attendance():
+        all_users = User.objects.all()
+        atends = []
+        for usr in all_users:
+            atends.append(Attendance.get_attendance_percentage(usr))
+
+        sum2=0
+        for i in atends:
+            sum2+=i
+
+        cnt = len(atends)
+
+        average_atend = sum2/cnt
+        ret = round(average_atend, 2)
+        return f"{ret}%"
+
+
+
 class PayDetails(models.Model):
     designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True)
     basic_salary= models.DecimalField(max_digits=10, decimal_places=2)
@@ -400,7 +794,7 @@ class EmployeeDetails(models.Model):
     corr_address = models.CharField(max_length=300)
     phone_number = models.BigIntegerField()
     emergency_contact_name = models.CharField(max_length=100)
-    emergency_contact_number = models.BigIntegerField(max_length=100)
+    emergency_contact_number = models.BigIntegerField()
 
 
     def format_code(number):
@@ -512,3 +906,14 @@ class CommonClass():
             if remaining:
                 parts.insert(0, remaining)
             return ','.join(parts) + ',' + last_three
+
+    def all_emps_info():
+        emp_info= {}
+        all_emps = User.objects.all()
+        emp_info["num_emps"] = User.objects.count()
+
+        all_depts = DepartmentList.objects.all()
+        emp_info["num_depts"] = DepartmentList.objects.count()
+
+
+        return emp_info

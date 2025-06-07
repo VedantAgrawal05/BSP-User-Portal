@@ -390,6 +390,270 @@
 .modal-btn:hover {
   opacity: 0.9;
 }
+
+.card-a {
+            /* background: rgba(45, 55, 72, 0.8); */
+            background: rgba(52, 73, 94, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: #63b3ed;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .card-a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title-a {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #63b3ed;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+/* FIXED CHART STYLES */
+        .card-wrapper {
+            width: 100%;
+            height: 300px;
+            /* background: rgba(74, 85, 104, 0.3); */
+            background: linear-gradient(45deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
+            display: flex;
+            border-radius: 0px 0px 8px 8px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 20px 15px 40px 15px;
+            gap: 10px;
+            margin-bottom: 2rem;
+            
+        }
+
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 60px;
+        }
+
+        .chart-bar {
+            width: 40px;
+            border-radius: 6px 6px 0 0;
+            transition: all 0.3s ease;
+            animation: growBar 1.2s ease-out;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .chart-bar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Individual bar colors with proper heights */
+        .bar1 {
+            background: linear-gradient(to top, #ff6b6b, #ffa07a);
+            height: 190px; /* 95% of ~200px */
+        }
+        .bar1:hover {
+            background: linear-gradient(to top, #e63946, #ff7f50);
+        }
+
+        .bar2 {
+            background: linear-gradient(to top, #6bff95, #a0ffb3);
+            height: 176px; /* 88% of ~200px */
+        }
+        .bar2:hover {
+            background: linear-gradient(to top, #2ecc71, #7dffcb);
+        }
+
+        .bar3 {
+            background: linear-gradient(to top, #6b8eff, #a0b3ff);
+            height: 184px; /* 92% of ~200px */
+        }
+        .bar3:hover {
+            background: linear-gradient(to top, #2c5aa0, #6795f7);
+        }
+
+        .bar4 {
+            background: linear-gradient(to top, #faff6b, #fffaa0);
+            height: 196px; /* 98% of ~200px */
+        }
+        .bar4:hover {
+            background: linear-gradient(to top, #f7e600, #fff176);
+        }
+
+        .bar5 {
+            background: linear-gradient(to top, #18f46c, #4be787);
+            height: 170px; /* 85% of ~200px */
+        }
+        .bar5:hover {
+            background: linear-gradient(to top, #09c451, #18b554);
+        }
+
+        .bar6 {
+            background: linear-gradient(to top, #f18832, #ef9a55);
+            height: 180px; /* 90% of ~200px */
+        }
+        .bar6:hover {
+            background: linear-gradient(to top, #d26d1a, #ec7f25);
+        }
+
+        .bar-label {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            text-align: center;
+            position: relative;
+            padding-left: 16px;
+        }
+
+        .bar-label::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .bar1-wrapper .bar-label::before {
+            background: linear-gradient(to top, #ff6b6b, #ffa07a);
+        }
+        .bar2-wrapper .bar-label::before {
+            background: linear-gradient(to top, #6bff95, #a0ffb3);
+        }
+        .bar3-wrapper .bar-label::before {
+            background: linear-gradient(to top, #6b8eff, #a0b3ff);
+        }
+        .bar4-wrapper .bar-label::before {
+            background: linear-gradient(to top, #faff6b, #fffaa0);
+        }
+        .bar5-wrapper .bar-label::before {
+            background: linear-gradient(to top, #18f46c, #4be787);
+        }
+        .bar6-wrapper .bar-label::before {
+            background: linear-gradient(to top, #f18832, #ef9a55);
+        }
+
+        @keyframes growBar {
+            from {
+                height: 0;
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .card-wrapper-b {
+            width: 100%;
+            height: 10px;
+            /* background: rgba(74, 85, 104, 0.3); */
+            background: rgba(52, 73, 94, 0.8);
+    /*             display: flex; */
+            border-radius: 8px 8px 0px 0px;
+            position: relative;
+            align-items: left;
+            justify-content: space-around;
+            padding: 20px 15px 40px 1.5rem;
+            gap: 10px;
+            color: #63b3ed;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+.chart-bar-b {
+    width: 40px;
+    border-radius: 6px 6px 0 0;
+    transition: all 0.3s ease;
+    animation: growBar 1s ease-out;
+}
+
+        .personal-info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .personal-info-modal.show {
+            display: flex;
+        }
+
+
+        .modal-content {
+            background: rgba(45, 55, 72, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.1);
+            border-radius: 12px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-top: 1rem;
+            padding-bottom: 0.75rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #63b3ed;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(226, 232, 240, 0.1);
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+
     </style>
 </head>
 <body>
@@ -404,7 +668,7 @@
         </div>
         
         <div class="user-section">
-            <span class="user-name">Rajesh Kumar</span>
+            <span class="user-name">{{info.employee_details.full_name}}</span>
             <button class="dropdown-trigger" onclick="toggleDropdown()"></button>
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="#" class="dropdown-item" onclick="showPersonalInfo()">Personal Information</a>
@@ -431,7 +695,70 @@
             <p>Monitor and manage HR operations across all departments</p>
         </div>
 
+        {% comment %} <div class="card-a">
+                <h2 class="card-title-a">📊 Department Attendance</h2>
+                <div class="card-wrapper">
+                    <div class="bar-wrapper bar1-wrapper">
+                        <div class="chart-bar bar1"></div>
+                        <span class="bar-label">Production</span>
+                    </div>
+                    <div class="bar-wrapper bar2-wrapper">
+                        <div class="chart-bar bar2"></div>
+                        <span class="bar-label">Maintenance</span>
+                    </div>
+                    <div class="bar-wrapper bar3-wrapper">
+                        <div class="chart-bar bar3"></div>
+                        <span class="bar-label">Quality</span>
+                    </div>
+                    <div class="bar-wrapper bar4-wrapper">
+                        <div class="chart-bar bar4"></div>
+                        <span class="bar-label">Admin</span>
+                    </div>
+                    <div class="bar-wrapper bar5-wrapper">
+                        <div class="chart-bar bar5"></div>
+                        <span class="bar-label">Security</span>
+                    </div>
+                    <div class="bar-wrapper bar6-wrapper">
+                        <div class="chart-bar bar6"></div>
+                        <span class="bar-label">Transport</span>
+                    </div>
+                </div>
+            </div> {% endcomment %}
+
+            {% comment %} <div class="card-wrapper-b">
+                {% for bar in bar_data %}
+                <div class="bar-wrapper">
+                    <div class="chart-bar-b" style="
+                        height: {{ bar.height|floatformat:0 }}%;
+                        background: linear-gradient(to top, #63b3ed, #4299e1);">
+                    </div>
+                    <span class="bar-label">{{ bar.label }}</span>
+                </div>
+                {% endfor %}
+            </div> {% endcomment %}
+
+            <div class="card-wrapper-b">
+                    📊 Department Attendance
+            </div>
+            <div class="card-wrapper">
+                    {% for bar in bar_data %}
+                    <div class="bar-wrapper">
+                        <div class="chart-bar"
+                            style="height: {{ bar.height }}px;
+                                    background: linear-gradient(to top, #63b3ed, #4299e1);">
+                        </div>
+                        <span class="bar-label">{{ bar.label }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+
+
         <div class="dashboard-grid">
+
+
+
+
             <div class="card">
                 <h3>Employee Distribution</h3>
                 <div class="chart-container">
@@ -466,23 +793,23 @@
             </div>
 
             <div class="card">
-                <h3>HR Statistics</h3>
+                <h3>Company Statistics</h3>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <div class="stat-number">2,547</div>
+                        <div class="stat-number">{{all_emps_info.num_emps}}</div>
                         <div class="stat-label">Total Employees</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">15</div>
+                        <div class="stat-number">{{all_emps_info.num_depts}}</div>
                         <div class="stat-label">Departments</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">94.2%</div>
+                        <div class="stat-number">{{all_emps_info.avg_attend}}</div>
                         <div class="stat-label">Avg Attendance</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">127</div>
-                        <div class="stat-label">New Hires</div>
+                        <div class="stat-number">{{all_emps_info.tot_pres}}</div>
+                        <div class="stat-label">Present Today</div>
                     </div>
                 </div>
             </div>
@@ -520,7 +847,57 @@
   </div>
 </footer>
 
-
+<!-- Personal Information Modal -->
+    <div class="personal-info-modal" id="personalInfoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Personal Information</h2>
+                <button class="close-btn" onclick="hidePersonalInfo()">&times;</button>
+            </div>
+            <div class="card" style="background: transparent; padding: 0; border: none; box-shadow: none;">
+                <div class="info-item">
+                    <span class="info-label">Employee ID</span>
+                    <span class="info-value">{{info.employee_details.bsp_id}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{info.employee_details.full_name}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Department</span>
+                    <span class="info-value">{{info.employee_details.department}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Position</span>
+                    <span class="info-value">{{info.employee_details.designation}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date of Joining</span>
+                    <span class="info-value">{{info.employee_details.date_joined}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{info.employee_details.email}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{info.employee_details.phone}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Residential Address</span>
+                    <span class="info-value">{{info.employee_details.res_address}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Correspondence Address</span>
+                    <span class="info-value">{{info.employee_details.corr_address}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Emergency Contact</span>
+                    <span class="info-value">{{info.employee_details.emergency_contact}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {%endif%}
     <script>
@@ -559,10 +936,25 @@
             }
         });
 
+
         function showPersonalInfo() {
-            alert('Redirecting to Personal Information page...');
-            // In real implementation, redirect to personal info page
+            const modal = document.getElementById('personalInfoModal');
+            modal.classList.add('show');
+            toggleDropdown(); // Close dropdown
         }
+
+        function hidePersonalInfo() {
+            const modal = document.getElementById('personalInfoModal');
+            modal.classList.remove('show');
+        }
+
+        
+        // Close modal when clicking outside
+        document.getElementById('personalInfoModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                hidePersonalInfo();
+            }
+        });
 
         function showWorkerStats() {
             alert('Opening Worker Statistics monitoring page...');

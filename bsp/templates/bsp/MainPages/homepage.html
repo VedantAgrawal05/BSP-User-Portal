@@ -397,6 +397,132 @@
             .user-name {
                 display: none;
             }
+                        .navigation-buttons {
+                flex-direction: column;
+            }
+        }
+        /* Punch Controls */
+        .punch-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .punch-button {
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .punch-in {
+            background: linear-gradient(45deg, #48bb78, #68d391);
+            color: white;
+        }
+
+        .punch-in:hover {
+            background: linear-gradient(45deg, #38a169, #48bb78);
+            transform: translateY(-2px);
+        }
+
+        .punch-out {
+            background: linear-gradient(45deg, #f56565, #fc8181);
+            color: white;
+        }
+
+        .punch-out:hover {
+            background: linear-gradient(45deg, #e53e3e, #f56565);
+            transform: translateY(-2px);
+        }
+
+        .punch-out:disabled,
+        .punch-in:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            justify-content: center;
+        }
+
+        .nav-button {
+            padding: 0.75rem 1.5rem;
+            background: rgba(74, 85, 104, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.2);
+            text-decoration: none;
+            border-radius: 8px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85em;
+            
+            
+        }
+
+        .nav-button:hover {
+            background: rgba(99, 179, 237, 0.2);
+            border-color: #63b3ed;
+        }
+
+        .back-button {
+            background: rgba(160, 174, 192, 0.2);
+            border: 1px solid rgba(160, 174, 192, 0.3);
+        }
+
+        .back-button:hover {
+            background: rgba(160, 174, 192, 0.3);
+        }
+         .status-present {
+            color: #68d391;
+            font-weight: 600;
+        }
+
+        .status-absent {
+            color: #fc8181;
+            font-weight: 600;
+        }
+
+        .status-partial {
+            color: #fbb038;
+            font-weight: 600;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: #a0aec0;
+            font-size: 1.25rem;
+        }
+
+        .current-status {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(74, 85, 104, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.1);
+        }
+
+        .status-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-time {
+            color: #63b3ed;
+            font-size: 1.125rem;
         }
 
         .footer {
@@ -529,8 +655,8 @@
                 <a href="#" class="dropdown-item" onclick="showPersonalInfo()">Personal Information</a>
                 <a href="#" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item">Help & Support</a>
-                <a href="{% url 'bsp:punch_home' %}" class="dropdown-item">Punch</a>
-                <a href="{% url 'bsp:attendance_hist' %}" class="dropdown-item">Attendance</a>
+                {% comment %} <a href="{% url 'bsp:punch_home' %}" class="dropdown-item">Punch</a> {% endcomment %}
+                {% comment %} <a href="{% url 'bsp:attendance_hist' %}" class="dropdown-item">Attendance</a> {% endcomment %}
                    {% if is_dept_hr%}
                 <a href="{% url 'bsp:hr_dash' %}" class="dropdown-item">HR Dashboard</a>
                 {% endif %}
@@ -548,7 +674,36 @@
     </header>
 
     <main class="main-content">
-        {{time}}
+        {% comment %} {{time}} {% endcomment %}
+        <div class="current-status">
+                <div class="status-text" id="currentStatus">Welcome</div>
+                <div class="status-time" id="statusTime"></div>
+            </div>
+
+            
+            <div class="punch-controls">
+                {% comment %} <button class="punch-button punch-in" id="punchInBtn" onclick="punchIn()">Punch In</button>
+                <button class="punch-button punch-out" id="punchOutBtn" onclick="punchOut()">Punch Out</button> {% endcomment %}
+                {% comment %} <button class="punch-button punch-out" id="punchOutBtn" onclick="punchOut()" disabled>Punch Out</button> {% endcomment %}
+                
+                <form id="punchin-form" method="post" action="{% url 'bsp:punch_in' %}">
+                    {% csrf_token %}
+                    <button type="submit" id="punchInBtn" class="punch-button punch-in">Punch in</button>
+                </form>
+                
+                
+                <form id="punchout-form" method="post" action="{% url 'bsp:punch_out' %}">
+                    {% csrf_token %}
+                    <button type="submit" id="punchOutBtn" class="punch-button punch-out">Punch out</button>
+                </form>
+            </div>
+            
+            <div class="navigation-buttons">
+                {% comment %} <button class="nav-button" onclick="{% url 'bsp:punch_log' %}">History</button> {% endcomment %}
+                <a href="{% url 'bsp:punch_log' %}" class="nav-button">History</a>
+                {% comment %} <button class="nav-button" onclick="{% url 'bsp:punch_log' %}">History</button> {% endcomment %}
+                <a href="{% url 'bsp:attendance_hist' %}" class="nav-button">Attendance</a>
+            </div>
         <div class="dashboard-grid">
             <!-- Attendance Chart -->
             <div class="card">
@@ -623,7 +778,7 @@
             </div>
 
 
-            <!-- Leave Balance -->
+            {% comment %} <!-- Leave Balance -->
             <div class="card">
                 <h2 class="card-title">🏖 Leave Balance</h2>
                 <div class="leave-balance">
@@ -642,7 +797,7 @@
                     <span class="leave-type">Casual Leave Remaining</span>
                     <span class="leave-count leave-paid">5 days</span>
                 </div>
-            </div>
+            </div> {% endcomment %}
 
             <!-- Recent Activity -->
             <div class="card">
@@ -802,6 +957,9 @@
                 }, index * 100);
             });
         });
+
+
+        
     </script>
 </body>
 </html>

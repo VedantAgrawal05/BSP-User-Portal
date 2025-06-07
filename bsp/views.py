@@ -7,7 +7,7 @@ from bsp.forms import SignUpForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 # from django.contrib.auth.models import User
-from .models import User, DesignationList, DepartmentList, CheckLog, Attendance, CommonClass
+from .models import User, DesignationList, DepartmentList, CheckLog, Attendance, CommonClass, EmployeeDetails
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core.exceptions import ValidationError
@@ -43,9 +43,65 @@ def homepage(request):
 
 @login_required(login_url="/accounts/login/")
 def dept_hr_dashboard(request):
-    context={
+    uname=request.user.username
+    user_obj = User.objects.get(username=uname)
+    info = CheckLog.get_todays_checkins_for_dept(user_obj)
+    info["employee_details"] = EmployeeDetails.get_employee_details(user_obj)
+    info["freq_late"]=CheckLog.get_frequent_late_arrivals(user_obj)
+    info["excl_attend"], info["low_attend"] = Attendance.get_attendance_rates(user_obj)
+
+    # raw_data = {
+    #     'green': 50,
+    #     'red': 30,
+    #     'gray': 20
+    # }
+
+    # total = sum(raw_data.values())
+    # current = 0
+    # angles = {}
+
+    # for key, value in raw_data.items():
+    #     start = current
+    #     end = current + (value / total * 360)
+    #     angles[key + '_start'] = round(start, 2)
+    #     angles[key + '_end'] = round(end, 2)
+    #     current = end
+
+    # context = {
+    #     'green_start': angles['green_start'],
+    #     'green_end': angles['green_end'],
+    #     'red_start': angles['red_start'],
+    #     'red_end': angles['red_end'],
+    #     'gray_start': angles['gray_start'],
+    #     'gray_end': angles['gray_end'],
+    # }
+    # return render(request, 'template.html', context)
+
+    raw_data = {
+        'green': info["present_count"],
+        'yellow': info["late_count"],
+        'gray': info["absent_count"],
+    }
+
+    total = sum(raw_data.values())
+    angles = {}
+    current_angle = 0
+
+    for key, value in raw_data.items():
+        angle = (value / total) * 360
+        angles[f"{key}_start"] = round(current_angle, 2)
+        current_angle += angle
+        angles[f"{key}_end"] = round(current_angle, 2)
+
+    # Pass the center color as a context variable if you want to make it dynamic
+    context = {
+        **angles,
+        "info":info,
         "flag":0,
     }
+        # 'center_color': '#2d3748'  # Change this to any hex or rgba
+    
+
     if user_is_dept_hr(request):
         context["flag"]=1
 
@@ -60,9 +116,33 @@ def dept_hr_dashboard(request):
 
 @login_required(login_url="/accounts/login/")
 def superuser_dashboard(request):
+    uname=request.user.username
+    user_obj = User.objects.get(username=uname)
+    info={}
+    info["employee_details"] = EmployeeDetails.get_employee_details(user_obj)
     context={
         "flag":0,
+        
     }
+    context["info"] = info
+    # bar_data = [
+    #     {'label': 'Production', 'height': 190},   # out of 200
+    #     {'label': 'Maintenance', 'height': 176},
+    #     {'label': 'Quality', 'height': 184},
+    #     {'label': 'Admin', 'height': 196},
+    #     {'label': 'Security', 'height': 170},
+    #     {'label': 'Transport', 'height': 180},
+    #     {'label': 'Finance', 'height': 160},
+    #     {'label': 'IT', 'height': 150},
+    #     {'label': 'Procurement', 'height': 172},
+    #     {'label': 'Logistics', 'height': 168},
+    # ]
+    bar_data = CheckLog.get_todays_checkins_for_all_dept()
+    context['bar_data']=bar_data
+    all_emps_info=CommonClass.all_emps_info()
+    all_emps_info["avg_attend"]=Attendance.get_average_attendance()
+    all_emps_info["tot_pres"]=CheckLog.get_total_present_today()
+    context['all_emps_info']=all_emps_info
     if user_is_superuser(request):
         context["flag"]=1
 
@@ -115,10 +195,13 @@ def punch_out(request):
 def punch_history(request):
     uname=request.user.username
     user_obj = User.objects.get(username=uname)
-    matched_recs = CheckLog.objects.filter(username=user_obj)
+    matched_recs = CheckLog.objects.filter(username=user_obj).order_by("-date", "-time")
+    personal_details = CommonClass.get_info(user_obj)
     context={
-        "record_exists":0
+        "record_exists":0,
+        "info":personal_details,
     }
+    # context[]
     for i in matched_recs:
         if i.action_id==1:
             i.action_name="Punch-in"
@@ -129,25 +212,31 @@ def punch_history(request):
         context = {
             "punch_logs": matched_recs,
             "record_exists": 1,
+            "info":personal_details,
     }
-    return render(request, "bsp/punches/phist.html", context)
+    return render(request, "bsp/punches/phis_new.html", context)
 
 
 @login_required(login_url="/accounts/login/")
 def attendance_history(request):
     uname=request.user.username
-    # user_obj = User.objects.get(username=uname)
+    user_obj = User.objects.get(username=uname)
     # matched_recs = CheckLog.objects.filter(username=user_obj)
     records = Attendance.get_formatted_values(uname)
+    personal_details = CommonClass.get_info(user_obj)
+
     context={
-        "record_exists":0
+        "record_exists":0,
+        "info":personal_details,
+
     }
     if records:
         context = {
             "punch_logs": records,
             "record_exists": 1,
+            "info":personal_details,
     }
-    return render(request, "bsp/attendance/ahist.html", context)
+    return render(request, "bsp/attendance/ahis_new.html", context)
 
 
 

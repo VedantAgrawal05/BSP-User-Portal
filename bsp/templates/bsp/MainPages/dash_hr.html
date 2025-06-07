@@ -292,6 +292,7 @@
 
         .dashboard-header {
             margin-bottom: 2rem;
+            text-align: center;
         }
 
         .dashboard-title {
@@ -737,8 +738,8 @@
         }
 
         .legend-present { background: #68d391; }
-        .legend-absent { background: #fc8181; }
-        .legend-late { background: #ed8936; }
+        .legend-absent { background: #a0aec0; }
+        .legend-late { background: #f6e05e; }
         .legend-leave { background: #4a5568; }
 
         @media (max-width: 768px) {
@@ -788,9 +789,125 @@
         }
 
 
+/*
+.donut-chart {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto 1rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    transition: 0.3s ease-in-out;
+}
+
+.donut-chart::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+*/
+.donut-chart {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transition: 0.3s ease-in-out;
+}
+
+.donut-chart::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: rgba(45, 55, 72);; /* Dynamically injected */
+    border-radius: 50%;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
 
 
+        .personal-info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
+        .personal-info-modal.show {
+            display: flex;
+        }
+
+
+        .modal-content {
+            background: rgba(45, 55, 72, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.1);
+            border-radius: 12px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-top: 1rem;
+            padding-bottom: 0.75rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #63b3ed;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(226, 232, 240, 0.1);
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
 
     </style>
 </head>
@@ -806,8 +923,8 @@
         </div>
         <div class="user-section">
             <div>
-                <div class="user-name">Priya Sharma</div>
-                <div class="user-role">HR Manager</div>
+                <div class="user-name">{{info.employee_details.full_name}}</div>
+                {% comment %} <div class="user-role">HR Manager</div> {% endcomment %}
             </div>
             <button class="dropdown-toggle" onclick="toggleDropdown()"></button>
             <div class="dropdown-menu" id="dropdownMenu">
@@ -851,30 +968,30 @@
             <!-- Overview Stats -->
             <div class="stats-overview">
                 <div class="stat-card">
-                    <span class="stat-number">342</span>
+                    <span class="stat-number">{{info.total_employees}}</span>
                     <span class="stat-label">Total Employees</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">318</span>
+                    <span class="stat-number">{{info.present_count}}</span>
                     <span class="stat-label">Present Today</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">15</span>
-                    <span class="stat-label">On Leave</span>
+                    <span class="stat-number">{{info.late_count}}</span>
+                    <span class="stat-label">Late</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">9</span>
+                    <span class="stat-number">{{info.absent_count}}</span>
                     <span class="stat-label">Absent</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">93%</span>
+                    <span class="stat-number">{{info.rate}}%</span>
                     <span class="stat-label">Attendance Rate</span>
                 </div>
             </div>
 
             <div class="dashboard-grid">
                 <!-- Department Attendance Chart -->
-                <div class="card">
+                {% comment %} <div class="card">
                     <h2 class="card-title">📊 Department Attendance</h2>
                     <div class="chart-container">
                         <div class="bar-wrapper bar1-wrapper">
@@ -902,33 +1019,58 @@
                             <span class="bar-label">Transport</span>
                         </div>
                     </div>
-                </div>
+                </div> {% endcomment %}
 
                 <!-- Attendance Distribution -->
                 <div class="card">
                     <h2 class="card-title">📈 Today's Status</h2>
-                    <div class="donut-chart"></div>
+                    {% comment %} <div class="donut-chart"></div> {% endcomment %}
+                    {% comment %} <div class="donut-chart"
+     style="background: conic-gradient(
+         #68d391 0deg {{ green_angle }}deg,
+         #fc8181 {{ green_angle }}deg {{ red_angle }}deg,
+         #4a5568 {{ red_angle }}deg 360deg);">
+</div> {% endcomment %}
+
+{% comment %} <div class="donut-chart"
+     style="background: conic-gradient(
+         #68d391 {{ green_start }}deg {{ green_end }}deg,
+         #ed8936 {{ red_start }}deg {{ red_end }}deg,
+         #4a5568 {{ orange_start }}deg {{ orange_end }}deg
+     );">
+</div> {% endcomment %}
+
+<div class="donut-chart"
+     style="background: conic-gradient(
+         #68d391 {{ green_start }}deg {{ green_end }}deg,
+         #f6e05e {{ yellow_start }}deg {{ yellow_end }}deg,
+         #a0aec0 {{ gray_start }}deg {{ gray_end }}deg
+     );">
+</div>
+
+
                     <div class="donut-legend">
                         <div class="legend-item">
                             <div class="legend-color legend-present"></div>
-                            <span>Present (318)</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color legend-absent"></div>
-                            <span>Absent (9)</span>
+                            <span>Present {{info.present_count}}</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color legend-late"></div>
-                            <span>Late (6)</span>
-                        </div>
+                            <span>Late {{info.late_count}}</span>
+                         </div>
                         <div class="legend-item">
+                            <div class="legend-color legend-absent"></div>
+                            <span>Absent {{info.absent_count}}</span>
+                        </div>
+                        {% comment %}<div class="legend-item">
                             <div class="legend-color legend-leave"></div>
                             <span>On Leave (15)</span>
-                        </div>
+                            {% endcomment %}
+                        </div> 
                     </div>
                 </div>
 
-                <!-- Recent Leaves -->
+                {% comment %} <!-- Recent Leaves -->
                 <div class="card">
                     <h2 class="card-title">🏖 Recent Leave Requests</h2>
                     <div class="info-item">
@@ -947,27 +1089,27 @@
                         <span class="info-label">Sunita Devi - Annual Leave</span>
                         <span class="status-badge" style="background: rgba(237, 137, 54, 0.2); color: #ed8936;">Pending</span>
                     </div>
-                </div>
+                </div> {% endcomment %}
 
                 <!-- Performance Alerts -->
                 <div class="card">
                     <h2 class="card-title">⚠ Performance Alerts</h2>
                     <div class="info-item">
-                        <span class="info-label">Low Attendance (<85%)</span>
-                        <span class="info-value">12 Employees</span>
+                        <span class="info-label">Low Attendance (&lt;85%)</span>
+                        <span class="info-value">{%if info.low_attend%}{{info.low_attend}}{% else %}0{%endif%} Employees</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Frequent Late Arrivals</span>
-                        <span class="info-value">8 Employees</span>
+                        <span class="info-value">{%if info.freq_late%}{{info.freq_late}}{% else %}0{%endif%} Employees</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Overtime Exceeding Limit</span>
-                        <span class="info-value">5 Employees</span>
+                        <span class="info-label">Excellent Attendance (&gt; 95%)</span>
+                        <span class="info-value">{%if info.exc_attend%}{{info.exc_attend}}{% else %}0{%endif%} Employees</span>
                     </div>
-                    <div class="info-item">
+                    {% comment %} <div class="info-item">
                         <span class="info-label">Pending Reviews</span>
                         <span class="info-value">23 Employees</span>
-                    </div>
+                    </div> {% endcomment %}
                 </div>
             </div>
         </div>
@@ -1064,7 +1206,7 @@
         </div>
     </main>
 
-    <!-- Personal Information Modal -->
+    {% comment %} <!-- Personal Information Modal -->
     <div class="modal" id="personalInfoModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1102,6 +1244,58 @@
             <div class="info-item">
                 <span class="info-label">Address</span>
                 <span class="info-value">Sector 2, Bhilai, Chhattisgarh</span>
+            </div>
+        </div>
+    </div> {% endcomment %}
+
+    <!-- Personal Information Modal -->
+    <div class="personal-info-modal" id="personalInfoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Personal Information</h2>
+                <button class="close-btn" onclick="hidePersonalInfo()">&times;</button>
+            </div>
+            <div class="card" style="background: transparent; padding: 0; border: none; box-shadow: none;">
+                <div class="info-item">
+                    <span class="info-label">Employee ID</span>
+                    <span class="info-value">{{info.employee_details.bsp_id}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{info.employee_details.full_name}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Department</span>
+                    <span class="info-value">{{info.employee_details.department}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Position</span>
+                    <span class="info-value">{{info.employee_details.designation}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date of Joining</span>
+                    <span class="info-value">{{info.employee_details.date_joined}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{info.employee_details.email}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{info.employee_details.phone}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Residential Address</span>
+                    <span class="info-value">{{info.employee_details.res_address}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Correspondence Address</span>
+                    <span class="info-value">{{info.employee_details.corr_address}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Emergency Contact</span>
+                    <span class="info-value">{{info.employee_details.emergency_contact}}</span>
+                </div>
             </div>
         </div>
     </div>
