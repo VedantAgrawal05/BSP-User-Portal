@@ -9,10 +9,9 @@ from . import views
 
 app_name = "bsp"
 urlpatterns = [
-    path("", views.homepage, name="home"),
+    path("home/", views.homepage, name="home"),
     path("HR-Dashboard/", views.dept_hr_dashboard, name="hr_dash"),
     path("Admin-Dashboard", views.superuser_dashboard, name="superuser_dash"),
-    path("punch/", views.punching_home, name="punch_home"),
     path("punch-in/", views.punch_in, name="punch_in"),
     path("punch-out/", views.punch_out, name="punch_out"),
     path("user-punches/", views.punch_history, name="punch_log"),

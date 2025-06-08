@@ -109,7 +109,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(226, 232, 240, 0.1);
             border-radius: 8px;
-            min-width: 180px;
+            min-width: 200px;
             display: none;
             z-index: 1000;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
@@ -653,8 +653,6 @@
             <button class="dropdown-toggle" onclick="toggleDropdown()"></button>
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="#" class="dropdown-item" onclick="showPersonalInfo()">Personal Information</a>
-                <a href="#" class="dropdown-item">Settings</a>
-                <a href="#" class="dropdown-item">Help & Support</a>
                 {% comment %} <a href="{% url 'bsp:punch_home' %}" class="dropdown-item">Punch</a> {% endcomment %}
                 {% comment %} <a href="{% url 'bsp:attendance_hist' %}" class="dropdown-item">Attendance</a> {% endcomment %}
                    {% if is_dept_hr%}

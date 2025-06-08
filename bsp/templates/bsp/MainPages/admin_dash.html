@@ -755,8 +755,6 @@
             <button class="dropdown-trigger" onclick="toggleDropdown()"></button>
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="#" class="dropdown-item" onclick="showPersonalInfo()">Personal Information</a>
-                <a href="#" class="dropdown-item" onclick="showWorkerStats()">Worker Statistics</a>
-                <a href="#" class="dropdown-item" onclick="showDeptHRStats()">Departmental HR Stats</a>
                 {% comment %} <a href="#" class="dropdown-item" onclick="logout()">Logout</a> {% endcomment %}
                 <a href="{% url 'bsp:home' %}" class="dropdown-item">Dashboard Home</a>
                 {% if is_dept_hr %}
@@ -928,11 +926,11 @@
             </div>
             
             <div class="quick-actions">
-            <a href="#" class="action-button" onclick="generateReport()">
-                📄 Generate Report
+            <a href="{% url 'bsp:home' %}" class="action-button" onclick="generateReport()">
+                Home
             </a>
             <a href="{% url 'admin:index' %}" target="_blank" class="action-button">
-                👥 Manage Employees
+                 Manage Employees
             </a>
             {% comment %} <a href="#" class="action-button" onclick="viewDepartments()">
                 🏢 Department Overview
