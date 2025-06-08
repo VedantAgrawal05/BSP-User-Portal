@@ -3,6 +3,9 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractUser#, User
 import datetime, calendar
+import colorsys, random
+from dateutil.relativedelta import relativedelta
+
 
 # Create your models here.
 class DepartmentList(models.Model):
@@ -827,7 +830,7 @@ class EmployeeDetails(models.Model):
         return emp_details
 
 
-class CommonClass():
+class CommonClass(): 
     def get_info(uobj):
         Attendance.absent_days_populator(uobj)
         # recs = Attendance.objects.filter(username=uobj).sort_by('-date')[:35]
@@ -863,8 +866,11 @@ class CommonClass():
         weekly_hours = []
         dates= Attendance.get_current_week_dates()
         for dt in dates:
-            rec=Attendance.objects.filter(username=uobj, date=dt)[0]
-            perc = (rec.hours_worked/8)*100
+            try:
+                rec=Attendance.objects.filter(username=uobj, date=dt)[0]
+                perc = (rec.hours_worked/8)*100
+            except IndexError:
+                perc=0
             as_pe = f"{perc}%"
             weekly_hours.append(as_pe)
 
@@ -913,7 +919,133 @@ class CommonClass():
         emp_info["num_emps"] = User.objects.count()
 
         all_depts = DepartmentList.objects.all()
-        emp_info["num_depts"] = DepartmentList.objects.count()
+        emp_info["num_depts"] = DepartmentList.objects.count() - 1
 
+        emp_info["tot_pres"]=CheckLog.get_total_present_today()
 
+        emp_info["tod_attend"]= f"{round((emp_info["tot_pres"]/emp_info["num_emps"])*100,2)}%"
         return emp_info
+
+    def get_all_dept_emp_count():
+        depts = DepartmentList.objects.all()
+        
+        emp_counts = []
+        for i in depts:
+            if i.department_id!=0:
+                emps = User.objects.filter(department_id=i).count()
+                emp_counts.append(emps)
+
+        return emp_counts
+    
+
+    def get_attendance_trends():
+        past_months = CommonClass.get_last_6_months()
+        attend_rates = {}
+
+        c_mon = CommonClass.get_current().month
+        curr_mon = calendar.month_abbr[c_mon]
+        curr_dt = CommonClass.get_current().day
+
+        for mon in past_months:
+            ky=calendar.month_abbr[mon[0]]
+            
+            if mon[0]!=c_mon:
+                days = CommonClass.count_working_days(mon[0],mon[1])
+            elif mon[0]==c_mon:
+                days = CommonClass.count_working_days_current_month()
+
+            attend_rates[ky]=[0,days]
+                # attend_rates[ky]=[0,days]
+
+        ar_sum = 0
+        users = User.objects.all()
+        user_count = users.count()
+        for usr in users:
+            Attendance.absent_days_populator(usr)
+
+        recs = Attendance.objects.all()
+
+        for iter in recs:
+            dt = iter.date
+            mn = dt.month
+            yr= dt.year
+            tup=(mn,yr)
+
+            if tup in past_months and iter.was_present==1:
+                attend_rates[calendar.month_abbr[mn]][0]+=1
+        
+        """should be actually working days (month-sundays) and multiplied by total employees"""
+        for i in attend_rates:
+            if i!=curr_mon:
+                # days = CommonClass.count_working_days()
+                attend_rates[i][0] = round(((attend_rates[i][0]/attend_rates[i][1])*100),2)
+            elif i==curr_mon:
+                attend_rates[i][0] = round(((attend_rates[i][0]/attend_rates[i][1])*100),2)
+
+        months = []
+        rates = []
+
+        for i in attend_rates:
+            months.append(i)
+            rates.append(attend_rates[i][0])
+
+
+        return months, rates
+
+        # return attend_rates
+
+
+    ##graph related stuff
+    def generate_hex_colors(n, saturation=0.7, value=0.95):
+        """Generate n visually distinct hex colors suitable for pie charts."""
+        colors = []
+        for i in range(n):
+            hue = i / n
+            rgb = colorsys.hsv_to_rgb(hue, saturation, value)
+            hex_color = '#{:02x}{:02x}{:02x}'.format(
+                int(rgb[0] * 255),
+                int(rgb[1] * 255),
+                int(rgb[2] * 255)
+            )
+            colors.append(hex_color)
+        random.shuffle(colors)  # Optional: randomize order
+        return colors
+
+
+    def get_current():
+        return datetime.datetime.now()
+    
+    def get_last_6_months():
+        today = datetime.datetime.today()
+        months = []
+        for i in range(6):
+            date = today - relativedelta(months=i)
+            months.append((date.month, date.year))
+        return months[::-1]    
+    
+    def count_working_days(month, year):
+        total_days = calendar.monthrange(year, month)[1]
+        non_sundays = 0
+        for day in range(1, total_days + 1):
+            if date(year, month, day).weekday() != 6:  # 6 = Sunday
+                non_sundays += 1
+        return non_sundays
+
+    def count_working_days_current_month():
+        today = datetime.datetime.today()
+        year = today.year
+        month = today.month
+        current_day = today.day
+
+        non_sundays = 0
+        for day in range(1, current_day + 1):
+            if date(year, month, day).weekday() != 6:  # 6 = Sunday
+                non_sundays += 1
+        return non_sundays
+
+
+
+    # def abc():
+    #     ab = Attendance.objects.all()[:5]
+    #     lst1 = [i.date for  i in ab]
+    #     return lst1

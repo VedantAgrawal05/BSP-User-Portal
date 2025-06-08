@@ -318,9 +318,45 @@
             .dashboard-title h2 {
                 font-size: 2rem;
             }
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            /* margin-bottom: 2rem; */
+        }
 
+        .stat-card {
+            background: rgba(45, 55, 72, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #63b3ed;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #cbd5e0;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
                 .logout-btn-custom {
             padding: 0.75rem 1rem;
             color: #fc8181;
@@ -653,6 +689,53 @@
             border-bottom: none;
         }
 
+.dashboard-row {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.half-card {
+    flex: 1 1 48%;
+    height: auto;
+}
+
+.full-card {
+    width: 100%;
+}
+
+.stats-grid.horizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+
+.half-card1 {
+    /* flex: 1 1 29%; */
+    height: auto;
+    width: 400px;
+}
+.half-card2 {
+    flex: 1 1;
+    height: auto;
+}
+
+
+        .chart-container canvas {
+  width: 100% ;
+}
+        .chart-container {
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            position: relative;
+        }
 
     </style>
 </head>
@@ -740,7 +823,7 @@
             <div class="card-wrapper-b">
                     📊 Department Attendance
             </div>
-            <div class="card-wrapper">
+            {% comment %} <div class="card-wrapper">
                     {% for bar in bar_data %}
                     <div class="bar-wrapper">
                         <div class="chart-bar"
@@ -750,54 +833,58 @@
                         <span class="bar-label">{{ bar.label }}</span>
                     </div>
                     {% endfor %}
+                </div> {% endcomment %}
+                <div class="card-wrapper">
+                    <canvas id="barChartCanvas"></canvas>  
                 </div>
 
 
 
-        <div class="dashboard-grid">
+
+        <div class="dashboard-row">
 
 
 
 
-            <div class="card">
+            <div class="card half-card1">
                 <h3>Employee Distribution</h3>
                 <div class="chart-container">
-                    <div class="chart-placeholder">
+                    {% comment %} <div class="chart-placeholder">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
                         <p>Employee Distribution Chart</p>
                         <small style="color: #7f8c8d;">Across Departments</small>
-                    </div>
+                    </div> {% endcomment %}
+                    <canvas id="employeeDistributionChart"></canvas>
+
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card half-card2">
                 <h3>Attendance Trends</h3>
                 <div class="chart-container">
-                    <div class="chart-placeholder">
+                    {% comment %} <div class="chart-placeholder">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
                         <p>Monthly Attendance Graph</p>
                         <small style="color: #7f8c8d;">Last 6 Months</small>
-                    </div>
+                    </div> {% endcomment %}
+                    <canvas id="attendanceTrendsChart"></canvas>
+
                 </div>
             </div>
 
-            <div class="card">
+            {% comment %} <div class="card">
                 <h3>Performance Metrics</h3>
                 <div class="chart-container">
-                    <div class="chart-placeholder">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
-                        <p>Department Performance</p>
-                        <small style="color: #7f8c8d;">Quarterly Analysis</small>
-                    </div>
-                </div>
-            </div>
 
-            <div class="card">
-                <h3>Company Statistics</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number">{{all_emps_info.num_emps}}</div>
-                        <div class="stat-label">Total Employees</div>
+                    <canvas id="performanceMetricsChart"></canvas>
+
+                </div>
+            </div> {% endcomment %}
+
+            {% comment %} <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">{{all_emps_info.num_emps}}</div>
+                    <div class="stat-label">Total Employees</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-number">{{all_emps_info.num_depts}}</div>
@@ -810,25 +897,51 @@
                     <div class="stat-item">
                         <div class="stat-number">{{all_emps_info.tot_pres}}</div>
                         <div class="stat-label">Present Today</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </div>
+                        </div> {% endcomment %}
+                        <div class="card full-card">
+                            <h3>Company Statistics</h3>
+                        <div class="stats-overview">
+                            <div class="stat-card">
+                                <span class="stat-number">{{all_emps_info.num_emps}}</span>
+                                <span class="stat-label">Total Employees</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number">{{all_emps_info.num_depts}}</span>
+                                <span class="stat-label">Departments</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number">{{all_emps_info.tot_pres}}</span>
+                                <span class="stat-label">Present Today</span>
+                            </div>
 
-        <div class="quick-actions">
+                            <div class="stat-card">
+                                <span class="stat-number">{{all_emps_info.tod_attend}}</span>
+                                <span class="stat-label">Today's Attendance</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number">{{all_emps_info.avg_attend}}</span>
+                                <span class="stat-label">Avg Attendance</span>
+                        </div> 
+            </div>
+            </div>
+            </div>
+            
+            <div class="quick-actions">
             <a href="#" class="action-button" onclick="generateReport()">
                 📄 Generate Report
             </a>
-            <a href="#" class="action-button" onclick="manageEmployees()">
+            <a href="{% url 'admin:index' %}" target="_blank" class="action-button">
                 👥 Manage Employees
             </a>
-            <a href="#" class="action-button" onclick="viewDepartments()">
+            {% comment %} <a href="#" class="action-button" onclick="viewDepartments()">
                 🏢 Department Overview
-            </a>
-            <a href="#" class="action-button" onclick="hrAnalytics()">
-                📊 HR Analytics
-            </a>
-        </div>
+                </a>
+                <a href="#" class="action-button" onclick="hrAnalytics()">
+                    📊 HR Analytics
+                    </a> {% endcomment %}
+                </div>
+            
     </main>
 
 
@@ -900,7 +1013,217 @@
     </div>
 
 {%endif%}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
+const barLabs = JSON.parse('{{ barLabels|safe }}');
+const bgCols = JSON.parse('{{ bgColors|safe }}');
+const attendMon = JSON.parse('{{ attendMonths|safe }}');
+
+//console.log(bgCols)
+
+
+
+  // Employee Distribution (Pie Chart)
+  new Chart(document.getElementById('employeeDistributionChart'), {
+    type: 'pie',
+    data: {
+      //labels: ['Production', 'Maintenance', 'Admin', 'HR', 'Security'],
+      labels: barLabs,
+      datasets: [{
+        label: 'Employees',
+        data: {{ piechartWeights }},
+        backgroundColor: bgCols ,
+        //backgroundColor: ['#63b3ed', '#f6ad55', '#48bb78', '#ed64a6', '#ecc94b'],
+        borderColor: '#1a202c',
+        borderWidth: 1
+      }]
+    },
+   // options: {
+   //   plugins: {
+    //    legend: { position: 'bottom' }
+    //  }
+    //}
+//    options: {
+//  plugins: {
+//    legend: {
+//      position: 'bottom',
+//              labels: {
+//        color: '#e2e8f0'  // legend text color
+//      }  // legend text color
+//      }
+//    },
+//    tooltip: {
+//      bodyColor: '#fefcbf',    // tooltip text color
+//      titleColor: '#faf089',   // tooltip title color
+//      backgroundColor: '#2d3748' // optional: tooltip bg
+//    }
+//  },
+options: {
+  layout: {
+    padding: {
+      top: 5
+    }
+  },
+  plugins: {
+    legend: {
+      position: 'bottom',
+      align: 'start',
+      labels: {
+        color: '#e2e8f0',
+        padding: 20,
+        boxWidth: 20,
+        usePointStyle: true,
+        maxWidth: 100
+      }
+    },
+    tooltip: {
+      bodyColor: '#fefcbf',
+      titleColor: '#faf089',
+      backgroundColor: '#2d3748'
+    }
+  }
+},
+  scales: {
+    x: {
+      ticks: {
+        color: '#cbd5e0'  // x-axis label color
+      }
+    },
+    y: {
+      ticks: {
+        color: '#cbd5e0'  // y-axis label color
+      }
+    }
+  }
+}
+
+    );
+
+  // Attendance Trends (Line Chart)
+  new Chart(document.getElementById('attendanceTrendsChart'), {
+    type: 'line',
+    data: {
+      labels: attendMon,
+      datasets: [{
+        label: 'Attendance (%)',
+        data: {{ attendRates }},
+        //data: [85, 88, 90, 87, 92, 89],
+        fill: false,
+        borderColor: '#4299e1',
+        backgroundColor: '#63b3ed',
+        tension: 0.4
+      }]
+    },
+
+        options: {
+  plugins: {
+    legend: {
+              labels: {
+        color: '#e2e8f0'  // legend text color
+      }  // legend text color
+      }
+    },
+    tooltip: {
+      bodyColor: '#fefcbf',    // tooltip text color
+      titleColor: '#faf089',   // tooltip title color
+      backgroundColor: '#2d3748' // optional: tooltip bg
+    },
+  
+  scales: {
+    x: {
+      ticks: {
+        color: '#cbd5e0'  // x-axis label color
+      }
+    },
+    y: {
+      ticks: {
+        color: '#e2e8f0'  // y-axis label color
+      }
+    }
+  },
+  
+}
+
+});
+
+  // Performance Metrics (Bar Chart)
+//  new Chart(document.getElementById('performanceMetricsChart'), {
+//    type: 'bar',
+//    data: {
+//      labels: ['Production', 'Maintenance', 'Admin', 'HR', 'Security'],
+//      datasets: [{
+//        label: 'Performance Score',
+//        data: [78, 85, 72, 80, 70],
+//        backgroundColor: '#68d391',
+//        borderRadius: 6
+//      }]
+//    },
+//    options: {
+//      scales: {
+//        y: { beginAtZero: true, max: 100 }
+//      }
+//    }
+//  });
+
+
+//const barRawData = JSON.parse(document.getElementById("bar-data").textContent);
+
+//const barLabels = barRawData.map(item => item.label);
+//const barHeights = barRawData.map(item => item.height);
+
+//console.log(barLabels)
+
+//    const data = JSON.parse(document.getElementById('mydata').textContent);
+//    mydata = data['barLabels'];
+//    console.log("mydata");
+//    console.log(mydata);
+const barCanvas = document.getElementById("barChartCanvas");
+if (barCanvas) {
+  const barCtx = barCanvas.getContext("2d");
+//console.log(barLabs)
+  new Chart(barCtx, {
+    type: "bar",
+    data: {
+      //labels: mydata,
+      labels: barLabs,
+      
+      //labels: {{ barLabels }},
+      datasets: [{
+        label: "Present Users",
+        data: {{ barHeights }},
+        backgroundColor: "#4299e1",
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: "#e2e8f0",
+        
+      stepSize: 1,
+      precision: 0  // Ensures no decimal points
+        }
+        },
+        x: {
+          ticks: { color: "#e2e8f0" }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      },
+    }
+  });
+}
+
+
+
+
+
          const logoutForm = document.querySelector("#logout-form");
   const logoutButton = document.querySelector("#logout-btn");
   const logoutModal = document.querySelector("#logout-modal");

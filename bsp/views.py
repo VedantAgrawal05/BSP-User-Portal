@@ -13,7 +13,9 @@ from django.contrib.auth import login, authenticate
 from django.core.exceptions import ValidationError
 
 from django.http import HttpResponseForbidden
-
+import random
+import colorsys
+import json
 
 
 @login_required(login_url="/accounts/login/")
@@ -138,11 +140,41 @@ def superuser_dashboard(request):
     #     {'label': 'Logistics', 'height': 168},
     # ]
     bar_data = CheckLog.get_todays_checkins_for_all_dept()
+    lst1=[]
+    lst2=[]
+    for i in bar_data:
+        lst1.append(i["label"])
+        # lst2.append(i["height"])      """using height gives a percentage value, present_count gives count values"
+        lst2.append(i["present_count"])
+
+    barLabels = json.dumps(lst1)
+    # barHeights = json.dumps(lst2)
+    context['barLabels']=barLabels
+    # context['barHeights']=b
+    # arHeights
+
+    # d1 = {'barLabels':lst1}
+    # context['d1']=d1
+    # context['barLabels']=lst1
+    context['barHeights']=lst2
     context['bar_data']=bar_data
     all_emps_info=CommonClass.all_emps_info()
     all_emps_info["avg_attend"]=Attendance.get_average_attendance()
-    all_emps_info["tot_pres"]=CheckLog.get_total_present_today()
+    # all_emps_info["tot_pres"]=CheckLog.get_total_present_today()
+    # all_emps_info["tod_attend"]=
     context['all_emps_info']=all_emps_info
+
+    dep_cnt = DepartmentList.objects.all().count() - 1
+    context["piechartWeights"]=CommonClass.get_all_dept_emp_count()
+    lst4 = CommonClass.generate_hex_colors(dep_cnt)
+    bgColors = json.dumps(lst4)
+    context["bgColors"]=bgColors
+    
+    a_months, attend_rates = CommonClass.get_attendance_trends()
+    context["attendRates"] = attend_rates
+    attend_months = json.dumps(a_months)
+    context["attendMonths"] = attend_months
+
     if user_is_superuser(request):
         context["flag"]=1
 
@@ -291,4 +323,9 @@ def signup(request):
 
     return render(request, 'bsp/Accs/signup.html', {'form': form})
 
+
+
+
+
+# Example usage
 
