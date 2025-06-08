@@ -1,19 +1,101 @@
+{%load static %} 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAIL Worker Dashboard</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 1rem;
+      }
+    }
+
+    .main-content {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .current-status {
+      text-align: center;
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: rgba(74, 85, 104, 0.3);
+      border-radius: 12px;
+      border: 1px solid rgba(226, 232, 240, 0.1);
+    }
+
+    .status-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .status-time {
+      color: #63b3ed;
+      margin: 0 0.25rem;
+    }
+  </style>
 </head>
 <body>
-    {% if flag %}
-    Already punched out for today, cannot punch you out again. Redirecting...
-    {% else %}
-    <p>Punched out, redirecting...</p>
-    {%endif %}
-<script>
+  <main class="main-content">
+    <div class="current-status">
+      <div class="status-container">
+
+            {% if flag %}
+                <span>Already punched out for today, cannot punch you out again. Redirecting in</span>
+
+            {% else %}
+                <span>Punched out, redirecting in</span>
+
+            {% endif %}
+
+        <span>&nbsp;(</span>
+        <span class="status-time" id="statusTime">5</span>
+        <span>)</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+
     setTimeout(function() {
         window.location.href = "{% url 'bsp:home' %}";
     }, 5000);
-</script>
 
+
+
+    let count = 5;
+    const countdownElement = document.getElementById("statusTime");
+
+    const countdown = setInterval(() => {
+      count--;
+      if (count > 0) {
+        countdownElement.textContent = count;
+      } else {
+        countdownElement.textContent = "1";
+        clearInterval(countdown);
+      }
+    }, 1000);
+  </script>
 </body>
 </html>
