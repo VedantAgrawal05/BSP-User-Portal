@@ -653,12 +653,13 @@ class Attendance(models.Model):
             start=logs[0].date + datetime.timedelta(days=1)
 
         else:
-            start = date(2025, 5, 25)  # Replace with your desired start date
+            start = date(2025, 5, 25)  # Replace with the desired start date
 
         # def get_date_list(start_date):
-        today = date.today()
+        today = Attendance.get_current().date()
         delta = today - start
-        dates_list = [start + datetime.timedelta(days=i) for i in range(delta.days + 1)]
+        dates_list = [start + datetime.timedelta(days=i) for i in range(delta.days)]
+        # return dates_list
 
         # Example usage
         # date_list = get_date_list(start)
@@ -840,8 +841,11 @@ class CommonClass():
         total_hours = 0
 
         for iter in month_dates:
-            rec = Attendance.objects.filter(username=uobj, date=iter)[0]
-            total_hours += rec.hours_worked
+            try:
+                rec = Attendance.objects.filter(username=uobj, date=iter)[0]
+                total_hours += rec.hours_worked
+            except IndexError:
+                pass
             
             if rec.was_present==1:
                 present_count+=1

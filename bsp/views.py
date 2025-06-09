@@ -330,23 +330,26 @@ def user_is_superuser(request):
 
 
 def signup(request):
-    if request.method == "POST":
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
+    if user_is_dept_hr(request):
+        if request.method == "POST":
+            form = SignUpForm(request.POST)
+            if form.is_valid():
+                email = form.cleaned_data.get('email')
 
-            # Check email before saving
-            if User.objects.filter(email=email).exists():
-                return render(request, 'bsp/Accs/signup.html', {'form': form, 'flag': 1})
+                # Check email before saving
+                if User.objects.filter(email=email).exists():
+                    return render(request, 'bsp/Accs/signup.html', {'form': form, 'flag': 1})
 
-            # Save and log in
-            form.save()
-            username = form.cleaned_data.get("username")
-            raw_password = form.cleaned_data.get("password1")
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect("bsp:home")
+                # Save and log in
+                form.save()
+                username = form.cleaned_data.get("username")
+                raw_password = form.cleaned_data.get("password1")
+                user = authenticate(username=username, password=raw_password)
+                login(request, user)
+                return redirect("bsp:home")
+        else:
+            form = SignUpForm()
+
+        return render(request, 'bsp/Accs/signup.html', {'form': form})
     else:
-        form = SignUpForm()
-
-    return render(request, 'bsp/Accs/signup.html', {'form': form})
+        return HttpResponseForbidden("You do not have permission to view this resource")
