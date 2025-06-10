@@ -35,10 +35,10 @@ class User(AbstractUser):
     """
     #currently using only one table, may split into different in future
     # department = models.CharField(max_length=200)
-    department_id = models.ForeignKey(DepartmentList, on_delete=models.SET_NULL, null=True)
+    department_id = models.ForeignKey(DepartmentList, on_delete=models.SET_NULL, null=True, default=1)
 
     # designation = models.CharField(max_length=200)
-    designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True)
+    designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True, default=3)
     
     #overriding date_joined
     date_joined = models.DateField(default=datetime.datetime.today().date())
