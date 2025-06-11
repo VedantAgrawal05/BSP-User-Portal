@@ -374,6 +374,25 @@
             font-size: 0.875rem;
             font-weight: 500;
         }
+        
+/*
+        .stat-number:hover {
+            font-size: 2.5rem;
+            font-weight: bold; 
+            color:rgb(88, 157, 205);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label:hover {
+            color:rgb(173, 181, 190);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+
+*/
+
 
         /* FIXED CHART STYLES */
         .chart-container {
@@ -596,6 +615,7 @@
             border: 1px solid rgba(237, 137, 54, 0.3);
         }
 
+        
         .action-btn {
             background: #3182ce;
             color: white;
@@ -909,6 +929,15 @@
             border-bottom: none;
         }
 
+        .tile-click{
+            text-decoration:none;   
+            opacity: 1;
+            transition: opacity 0.1s ease; /* Smooth transition */
+        }
+
+        .tile-click:hover {
+            opacity: 0.75;
+        }
     </style>
 </head>
 <body>
@@ -934,6 +963,9 @@
                 <a href="{% url 'bsp:home' %}" class="dropdown-item">
                     Dashboard Home
                 </a>
+                <a href="{% url 'bsp:dept_users' %}" class="dropdown-item">
+                    Department Employees
+                </a>
                 {% if is_superuser%}
                 <a href="{% url 'bsp:superuser_dash' %}" class="dropdown-item">Admin Dashboard</a>
                 {% endif %}
@@ -957,22 +989,30 @@
 
             <!-- Overview Stats -->
             <div class="stats-overview">
-                <div class="stat-card">
-                    <span class="stat-number">{{info.total_employees}}</span>
-                    <span class="stat-label">Total Employees</span>
-                </div>
+                <a href="{% url 'bsp:dept_users' %}" class="tile-click">
+                <div class="stat-card">                
+                        <span class="stat-number">{{info.total_employees}}</span>
+                        <span class="stat-label">Total Employees</span>
+                    </div>
+                </a>
+                <a href="{% url 'bsp:dept_pres_users' %}" class="tile-click">
                 <div class="stat-card">
                     <span class="stat-number">{{info.present_count}}</span>
                     <span class="stat-label">Present Today</span>
                 </div>
+                </a>
+                <a href="{% url 'bsp:dept_late_users' %}" class="tile-click">
                 <div class="stat-card">
                     <span class="stat-number">{{info.late_count}}</span>
                     <span class="stat-label">Late</span>
                 </div>
+                </a>
+                <a href="{% url 'bsp:dept_abs_users' %}" class="tile-click">
                 <div class="stat-card">
                     <span class="stat-number">{{info.absent_count}}</span>
                     <span class="stat-label">Absent</span>
                 </div>
+                </a>
                 <div class="stat-card">
                     <span class="stat-number">{{info.rate}}%</span>
                     <span class="stat-label">Attendance Rate</span>
@@ -1261,6 +1301,10 @@
                 <div class="info-item">
                     <span class="info-label">Position</span>
                     <span class="info-value">{{info.employee_details.designation}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value">{{info.employee_details.dob}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Date of Joining</span>

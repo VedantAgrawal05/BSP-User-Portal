@@ -265,35 +265,16 @@ class CheckLog(models.Model):
         # dobj = DepartmentList.objects.get(department_id=dept)
         # sal_
         info={}
-        # rec = CheckLog.objects.get(designation_id=desgn)
         users_in_dept = User.objects.filter(department_id=dept)
         total_users = len(users_in_dept)
 
         tod = CheckLog.get_current_date()
 
         todays_checkins = CheckLog.objects.filter(action_id=1, date=tod)
-        # print(CheckLog.objects.filter(action_id=1, date=tod).query)
 
         present_count =0
         absent_count =0
         late_count=0
-
-        # for i in users_in_dept:
-        #     for j in todays_checkins:
-        #         if j.username==i:
-        #             ch_in = j.time
-        #             sh = j.shift
-        #             if CheckLog.check_if_user_late(ch_in, sh):
-        #                 late_count+=1
-        #                 present_count+=1
-        #                 break
-
-        #             else:
-        #                 present_count+=1
-        #             # present_users.append(i)
-                    
-        #         else:
-        #             absent_count+=1
 
         found = False
         for i in users_in_dept:
@@ -313,7 +294,7 @@ class CheckLog(models.Model):
 
             if not found:
                     absent_count+=1
-                    found=False
+            found=False
 
         try:
             chk = (present_count / (present_count + absent_count ))*100
@@ -809,6 +790,7 @@ class EmployeeDetails(models.Model):
 
     def get_employee_details(uobj):
         rec = EmployeeDetails.objects.get(username=uobj)
+        user_obj = User.objects.get(username=uobj)
         uid= uobj.id
         desgn_id=uobj.designation_id
         dept_id=uobj.department_id
@@ -826,6 +808,7 @@ class EmployeeDetails(models.Model):
             "res_address":rec.res_address,
             "corr_address":rec.corr_address,
             "emergency_contact":f'{rec.emergency_contact_name} - {rec.emergency_contact_number}',
+            "dob":user_obj.birthday
 
         }
         return emp_details
@@ -926,6 +909,8 @@ class CommonClass():
         emp_info["num_depts"] = DepartmentList.objects.count() - 1
 
         emp_info["tot_pres"]=CheckLog.get_total_present_today()
+
+        emp_info["tot_abs"]= emp_info["num_emps"] - emp_info["tot_pres"]
 
         emp_info["tod_attend"]= f"{round((emp_info["tot_pres"]/emp_info["num_emps"])*100,2)}%"
         return emp_info
@@ -1053,3 +1038,188 @@ class CommonClass():
     #     ab = Attendance.objects.all()[:5]
     #     lst1 = [i.date for  i in ab]
     #     return lst1
+    
+    def get_dept_users(hr_uobj):
+        dept = hr_uobj.department_id
+        users_in_dept = User.objects.filter(department_id=dept)
+        details = []
+        d1={}
+        for usr in users_in_dept:
+            d1 = EmployeeDetails.get_employee_details(usr)
+            usr.department_name = usr.department_id.department_name
+            usr.designation_name = usr.designation_id.designation_name
+            usr.bsp_id = d1["bsp_id"]
+            usr.phone = d1["phone"]
+            usr.address = d1["corr_address"]
+            usr.emer = d1["emergency_contact"]
+
+        return users_in_dept
+    
+
+    def get_all_users():
+        # dept = hr_uobj.department_id
+        # users_in_dept = User.objects.all()
+        # return users_in_dept
+        # dept = hr_uobj.department_id
+        all_users = User.objects.all()
+        details = []
+        d1={}
+        for usr in all_users:
+            d1 = EmployeeDetails.get_employee_details(usr)
+            usr.department_name = usr.department_id.department_name
+            usr.designation_name = usr.designation_id.designation_name
+            usr.bsp_id = d1["bsp_id"]
+            usr.phone = d1["phone"]
+            usr.address = d1["corr_address"]
+            usr.emer = d1["emergency_contact"]
+
+        return all_users
+    
+
+            
+    def get_todays_users_for_dept(uobj):
+        # dept = DepartmentList.objects.get()
+        dept = uobj.department_id
+        # dobj = DesignationList.objects.get(designation_id=desgn)
+        # dobj = DepartmentList.objects.get(department_id=dept)
+        # sal_
+        info={}
+        # rec = CheckLog.objects.get(designation_id=desgn)
+        users_in_dept = User.objects.filter(department_id=dept)
+        # total_users = len(users_in_dept)
+
+        tod = CheckLog.get_current_date()
+
+        todays_checkins = CheckLog.objects.filter(action_id=1, date=tod)
+        # print(CheckLog.objects.filter(action_id=1, date=tod).query)
+
+        present_count = []
+        absent_count = []
+        late_count= []
+
+        # for i in users_in_dept:
+        #     for j in todays_checkins:
+        #         if j.username==i:
+        #             ch_in = j.time
+        #             sh = j.shift
+        #             if CheckLog.check_if_user_late(ch_in, sh):
+        #                 late_count+=1
+        #                 present_count+=1
+        #                 break
+
+        #             else:
+        #                 present_count+=1
+        #             # present_users.append(i)
+                    
+        #         else:
+        #             absent_count+=1
+
+        found = False
+        for i in users_in_dept:
+            for j in todays_checkins:
+                if j.username==i:
+                    ch_in = j.time
+                    sh = j.shift
+                    if CheckLog.check_if_user_late(ch_in, sh):
+                        late_count.append(i)
+                    present_count.append(i)
+                    found = True
+                    break
+
+                    # else:
+                        # present_count+=1
+                    # present_users.append(i)
+
+            if not found:
+                    absent_count.append(i)
+                    found=False
+
+        # try:
+        #     chk = (present_count / (present_count + absent_count ))*100
+        #     attendance_rate= round(chk, 2)
+        # except ZeroDivisionError:
+        #     attendance_rate=0
+
+        # for k in present_users:
+        info["present_count"]=present_count
+        info["absent_count"]=absent_count
+        info["late_count"]=late_count
+        # info["total_employees"]=total_users
+        # info["rate"]=attendance_rate
+
+        return info
+
+            
+    def get_todays_users_for_all_dept():
+        # dept = DepartmentList.objects.get()
+        # dept = uobj.department_id
+        # dobj = DesignationList.objects.get(designation_id=desgn)
+        # dobj = DepartmentList.objects.get(department_id=dept)
+        # sal_
+        info={}
+        # rec = CheckLog.objects.get(designation_id=desgn)
+        users_in_dept = User.objects.filter()
+        # total_users = len(users_in_dept)
+
+        tod = CheckLog.get_current_date()
+
+        todays_checkins = CheckLog.objects.filter(action_id=1, date=tod)
+        # print(CheckLog.objects.filter(action_id=1, date=tod).query)
+
+        present_count = []
+        absent_count = []
+        late_count= []
+
+        # for i in users_in_dept:
+        #     for j in todays_checkins:
+        #         if j.username==i:
+        #             ch_in = j.time
+        #             sh = j.shift
+        #             if CheckLog.check_if_user_late(ch_in, sh):
+        #                 late_count+=1
+        #                 present_count+=1
+        #                 break
+
+        #             else:
+        #                 present_count+=1
+        #             # present_users.append(i)
+                    
+        #         else:
+        #             absent_count+=1
+
+        found = False
+        for i in users_in_dept:
+            for j in todays_checkins:
+                if j.username==i:
+                    ch_in = j.time
+                    sh = j.shift
+                    if CheckLog.check_if_user_late(ch_in, sh):
+                        late_count.append(i)
+                    present_count.append(i)
+                    found = True
+                    break
+
+                    # else:
+                        # present_count+=1
+                    # present_users.append(i)
+
+            if not found:
+                    absent_count.append(i)
+                    found=False
+
+        # try:
+        #     chk = (present_count / (present_count + absent_count ))*100
+        #     attendance_rate= round(chk, 2)
+        # except ZeroDivisionError:
+        #     attendance_rate=0
+
+        # for k in present_users:
+        info["present_count"]=present_count
+        info["absent_count"]=absent_count
+        info["late_count"]=late_count
+        # info["total_employees"]=total_users
+        # info["rate"]=attendance_rate
+
+        return info
+
+  

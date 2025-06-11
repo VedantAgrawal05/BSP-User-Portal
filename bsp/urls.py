@@ -16,6 +16,14 @@ urlpatterns = [
     path("punch-out/", views.punch_out, name="punch_out"),
     path("user-punches/", views.punch_history, name="punch_log"),
     path("user-attendance/", views.attendance_history, name="attendance_hist"),
+    path("HR-Dashboard/dept-employees/", views.show_dept_users, name="dept_users"),
+    path("HR-Dashboard/dept-pres-employees/", views.show_dept_present_users, name="dept_pres_users"),
+    path("HR-Dashboard/dept-late-employees/", views.show_dept_late_users, name="dept_late_users"),
+    path("HR-Dashboard/dept-abs-employees/", views.show_dept_absent_users, name="dept_abs_users"),
+    path("Admin-Dashboard/all-employees/", views.show_all_users, name="all_users"),
+    path("Admin-Dashboard/all-pres-employees/", views.show_all_present_users, name="all_pres_users"),
+    path("Admin-Dashboard/all-abs-employees/", views.show_all_absent_users, name="all_abs_users"),
+    path("Admin-Dashboard/all-late-employees/", views.show_all_late_users, name="all_late_users"),
 
 
 

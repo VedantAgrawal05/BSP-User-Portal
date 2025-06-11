@@ -1,0 +1,1277 @@
+{%load static %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAIL Worker Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+
+        }
+
+        .header {
+            background: rgba(74, 85, 104, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg,rgb(201, 223, 244),rgb(179, 186, 190));            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 3px solid white;
+            border-radius: 3px;
+            transform: rotate(45deg);
+        }
+
+        .company-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        .hindi-text {
+            font-size: 0.875rem;
+            color: #cbd5e0;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .dropdown-toggle:hover {
+            background: rgba(226, 232, 240, 0.1);
+        }
+
+        .dropdown-toggle::after {
+            content: '⋮';
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(45, 55, 72, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.1);
+            border-radius: 8px;
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+        }
+
+        
+        
+        .dropdown-item:hover {
+            background: rgba(226, 232, 240, 0.1);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+            color: #fc8181;
+        }
+        
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        
+        .attendance-chart {
+            width: 100%;
+            height: 200px;
+            background: rgba(74, 85, 104, 0.5);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            padding: 2rem;
+        }
+        
+        .chart-bar {
+            width: 30px;
+            background: linear-gradient(to top, #3182ce, #63b3ed);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            display: flex;
+            align-items: end;
+            animation: growBar 1s ease-out;
+        }
+        
+        @keyframes growBar {
+            from { height: 0; }
+            to { height: var(--height); }
+        }
+        
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #cbd5e0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(74, 85, 104, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(226, 232, 240, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #63b3ed;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #cbd5e0;
+            margin-top: 0.25rem;
+        }
+        
+        .leave-balance {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+        }
+        
+        .leave-balance:last-child {
+            border-bottom: none;
+        }
+
+        .leave-type {
+            font-weight: 500;
+        }
+        
+        .leave-count {
+            font-size: 1.125rem;
+            font-weight: bold;
+        }
+        
+        .leave-paid {
+            color: #68d391;
+        }
+        
+        .leave-unpaid {
+            color: #fc8181;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #cbd5e0;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+        
+        .recent-activity {
+            list-style: none;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #63b3ed;
+        }
+        
+        .activity-text {
+            flex: 1;
+            font-size: 0.875rem;
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: #cbd5e0;
+        }
+        
+        .personal-info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .personal-info-modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(45, 55, 72, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.1);
+            border-radius: 12px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-top: 1rem;
+            padding-bottom: 0.75rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #63b3ed;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .close-btn:hover {
+            background: rgba(226, 232, 240, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-name {
+                display: none;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+        }
+        /* Punch Controls */
+        .punch-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .punch-button {
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .punch-in {
+            background: linear-gradient(45deg, #48bb78, #68d391);
+            color: white;
+        }
+        
+        .punch-in:hover {
+            background: linear-gradient(45deg, #38a169, #48bb78);
+            transform: translateY(-2px);
+        }
+        
+        .punch-out {
+            background: linear-gradient(45deg, #f56565, #fc8181);
+            color: white;
+        }
+        
+        .punch-out:hover {
+            background: linear-gradient(45deg, #e53e3e, #f56565);
+            transform: translateY(-2px);
+        }
+        
+        .punch-out:disabled,
+        .punch-in:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            justify-content: center;
+        }
+        
+        .nav-button {
+            padding: 0.75rem 1.5rem;
+            background: rgba(74, 85, 104, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.2);
+            border-radius: 8px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-button:hover {
+            background: rgba(99, 179, 237, 0.2);
+            border-color: #63b3ed;
+        }
+        
+        .back-button {
+            background: rgba(160, 174, 192, 0.2);
+            border: 1px solid rgba(160, 174, 192, 0.3);
+            text-decoration: none;
+        }
+        
+        .back-button:hover {
+            background: rgba(160, 174, 192, 0.3);
+        }
+        .status-present {
+            color: #68d391;
+            font-weight: 600;
+        }
+        
+        .status-absent {
+            color: #fc8181;
+            font-weight: 600;
+        }
+        
+        .status-partial {
+            color: #fbb038;
+            font-weight: 600;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: #a0aec0;
+            font-size: 1.25rem;
+        }
+        
+        .current-status {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(74, 85, 104, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.1);
+        }
+        
+        .status-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-time {
+            color: #63b3ed;
+            font-size: 1.125rem;
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 3rem;
+        }
+        .btn {
+            width: 100%;
+            height: 75px;
+            padding: 20px;
+            background: rgba(74, 85, 104, 0.5);
+            color: #ecf0f1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            background: rgba(44, 62, 80, 0.9);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .logout-btn-custom {
+            padding: 0.75rem 1rem;
+            color: #fc8181;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.2s;
+            border: none;
+            background: none;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+            width: 100%;
+            text-align: left;
+            font: inherit;
+            cursor: pointer;
+        }
+        
+        .logout-btn-custom:hover {
+            background: rgba(246, 76, 76, 0.1);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .modal-box {
+            background: #2c3e50;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            color: #ecf0f1;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            width: 320px;
+        }
+        
+        .modal-buttons {
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .modal-btn.confirm {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .modal-btn.cancel {
+            background: #c0392b;
+            color: white;
+        }
+        
+        .modal-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .site-footer {
+            background-color: #1e2a36; /* dark blue-gray */
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            border-top: 1px solid #2f3b47; /* subtle top border for separation */
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: rgba(45, 55, 72, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: #63b3ed;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .attendance-chart {
+            width: 100%;
+            height: 200px;
+            background: rgba(74, 85, 104, 0.5);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            padding: 2rem;
+        }
+        
+        .chart-bar {
+            width: 30px;
+            background: linear-gradient(to top, #3182ce, #63b3ed);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            display: flex;
+            align-items: end;
+            animation: growBar 1s ease-out;
+        }
+        
+        @keyframes growBar {
+            from { height: 0; }
+            to { height: var(--height); }
+        }
+        
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(45, 55, 72, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .data-table th {
+            background: rgba(74, 85, 104, 0.9);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #63b3ed;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+        }
+        
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+        }
+        
+        .data-table tr:hover {
+            background: rgba(226, 232, 240, 0.05);
+        }
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex:1;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        #punchRecordsContent { 
+            margin-top:2rem;
+        }
+    
+        .no-data-div {
+            margin-top:2rem;
+        }
+
+        .table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.table-wrapper .data-table {
+    min-width: max-content;
+}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-section">
+            <img id="home-btn" src="{% static 'bsp/images/bsp_logo.png' %}" class="link-button logo">
+            <div>
+                <div class="company-name">SAIL</div>
+                <div class="hindi-text">सेल</div>
+            </div>
+        </div>
+        <div class="user-section">
+            <span class="user-name">{{info.employee_details.full_name}}</span>
+            <button class="dropdown-toggle" onclick="toggleDropdown()"></button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="#" class="dropdown-item" onclick="showPersonalInfo()">Personal Information</a>
+                {% comment %} <a href="{% url 'bsp:punch_home' %}" class="dropdown-item">Punch</a> {% endcomment %}
+                {% comment %} <a href="{% url 'bsp:attendance_hist' %}" class="dropdown-item">Attendance</a> {% endcomment %}
+                   {% comment %} {% if is_dept_hr%}
+                <a href="{% url 'bsp:hr_dash' %}" class="dropdown-item">HR Dashboard</a>
+                {% endif %}
+                {% if is_superuser%}
+                <a href="{% url 'bsp:superuser_dash' %}" class="dropdown-item">Admin Dashboard</a>
+                {% endif %} {% endcomment %}
+                <div>
+    <form id="logout-form" method="post" action="{% url 'logout' %}">
+  {% csrf_token %}
+  <button type="submit" id="logout-btn" class="logout-btn-custom">Logout</button>
+</form>
+</div>
+            </div>
+        </div>
+    </header>
+    <main class="main-content">
+         <div id="punchRecordsView" class="view">
+            <div class="card">
+                <h2 class="card-title">Today's {{type}} employees in Company</h2>
+                <a href="{% url 'bsp:superuser_dash' %}" class="back-button nav-button">Back</a>
+
+                {% if flag %}
+                <div id="punchRecordsContent" class="table-wrapper">
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Date Joined</th>
+                                <th>Birthday</th>
+                                <th>Address</th>
+                                <th>Emergency Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody id="punchRecordsTableBody" onload="populatePunchRecordsTable()">
+                                {% for rec in users %}
+    <tr>
+        {% comment %} <td>{{rec.username}}</td> {% endcomment %}
+        <td>{{rec.bsp_id}}</td>
+        <td>{{rec.first_name}}</td>
+        <td>{{rec.last_name}}</td>
+        <td>{{rec.department_name}}</td>
+        <td>{{rec.designation_name}}</td>
+        <td>{{rec.phone}}</td>
+        <td>{{rec.email}}</td>
+        <td>{{rec.date_joined}}</td>
+        <td>{{rec.birthday}}</td>
+        <td>{{rec.address}}</td>
+        <td>{{rec.emer}}</td>
+        {% comment %} <td>{{rec.shift}}</td> {% endcomment %}
+        {% comment %} <td>{{}}</td> {% endcomment %}
+    </tr>
+    {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="no-data-div"> 
+                    <p>
+                No data to show!
+                </p></div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    <!-- Personal Information Modal -->
+    <div class="personal-info-modal" id="personalInfoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Personal Information</h2>
+                <button class="close-btn" onclick="hidePersonalInfo()">&times;</button>
+            </div>
+            <div class="card" style="background: transparent; padding: 0; border: none; box-shadow: none;">
+                <div class="info-item">
+                    <span class="info-label">Employee ID</span>
+                    <span class="info-value">{{info.employee_details.bsp_id}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{info.employee_details.full_name}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Department</span>
+                    <span class="info-value">{{info.employee_details.department}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Position</span>
+                    <span class="info-value">{{info.employee_details.designation}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value">{{info.employee_details.dob}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date of Joining</span>
+                    <span class="info-value">{{info.employee_details.date_joined}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{info.employee_details.email}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{info.employee_details.phone}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Residential Address</span>
+                    <span class="info-value">{{info.employee_details.res_address}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Correspondence Address</span>
+                    <span class="info-value">{{info.employee_details.corr_address}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Emergency Contact</span>
+                    <span class="info-value">{{info.employee_details.emergency_contact}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="logout-modal" class="modal-overlay">
+  <div class="modal-box">
+    <p>Are you sure you wish to logout?</p>
+    <div class="modal-buttons">
+      <button id="confirm-logout" class="modal-btn confirm">Yes</button>
+      <button id="cancel-logout" class="modal-btn cancel">No</button>
+    </div>
+  </div>
+</div>
+<footer class="site-footer">
+  <div class="footer-content">
+    © 2025 Bhilai Steel Plant. All rights reserved.
+  </div>
+</footer>
+
+    <script>
+
+                const logoutForm = document.querySelector("#logout-form");
+                const logoutButton = document.querySelector("#logout-btn");
+                const logoutModal = document.querySelector("#logout-modal");
+                const confirmLogout = document.querySelector("#confirm-logout");
+                const cancelLogout = document.querySelector("#cancel-logout");
+
+            logoutButton.addEventListener("click", function(event) {
+                event.preventDefault(); // Stop form from submitting immediately
+                logoutModal.style.display = "flex"; // Show modal
+            });
+
+            confirmLogout.addEventListener("click", function() {
+                logoutForm.submit(); // Manually submit the form
+            });
+
+            cancelLogout.addEventListener("click", function() {
+                logoutModal.style.display = "none"; // Hide modal
+            });
+
+        function viewPayslip() {
+            alert('Downloading latest payslip...');
+        }
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        function showPersonalInfo() {
+            const modal = document.getElementById('personalInfoModal');
+            modal.classList.add('show');
+            toggleDropdown(); // Close dropdown
+        }
+
+        function hidePersonalInfo() {
+            const modal = document.getElementById('personalInfoModal');
+            modal.classList.remove('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdownMenu');
+            const toggleBtn = document.querySelector('.dropdown-toggle');
+            
+            if (!toggleBtn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('personalInfoModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                hidePersonalInfo();
+            }
+        });
+
+        // Animate chart bars on page load
+        window.addEventListener('load', function() {
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.opacity = '1';
+                }, index * 100);
+            });
+        });
+
+        let isPunchedIn = false;
+        let punchInTime = null;
+        let attendanceHistory = [];
+        let punchRecords = [];
+
+    
+        function initializeData() {
+        
+            attendanceHistory = [
+                { date: 'June 2, 2025', status: 'Partial Day', shift: 'Partial Shift', hours: '0.00' },
+                { date: 'June 1, 2025', status: 'Absent', shift: 'None', hours: '0.00' },
+                { date: 'May 31, 2025', status: 'Absent', shift: 'None', hours: '0.00' },
+                { date: 'May 30, 2025', status: 'Present', shift: 'Day Shift', hours: '8.00' },
+                { date: 'May 29, 2025', status: 'Absent', shift: 'None', hours: '0.00' },
+                { date: 'May 28, 2025', status: 'Present', shift: 'Day Shift', hours: '8.00' },
+                { date: 'May 27, 2025', status: 'Absent', shift: 'None', hours: '0.00' },
+                { date: 'May 26, 2025', status: 'Absent', shift: 'None', hours: '0.00' },
+                { date: 'May 25, 2025', status: 'Absent', shift: 'None', hours: '0.00' },
+                { date: 'May 24, 2025', status: 'Absent', shift: 'None', hours: '0.00' }
+            ];
+            punchRecords = [
+                { action: 'Punch-in', time: '7:55 p.m.', date: 'May 28, 2025' },
+                { action: 'Punch-out', time: '7:55 p.m.', date: 'May 28, 2025' },
+                { action: 'Punch-in', time: '11:14 p.m.', date: 'May 30, 2025' },
+                { action: 'Punch-out', time: '11:14 p.m.', date: 'May 30, 2025' },
+                { action: 'Punch-in', time: '11:15 p.m.', date: 'May 30, 2025' },
+                { action: 'Punch-out', time: '11:15 p.m.', date: 'May 30, 2025' },
+                { action: 'Punch-in', time: '11:20 p.m.', date: 'May 30, 2025' }
+            ];
+        }
+
+
+        function punchIn() {
+            if (!isPunchedIn) {
+                isPunchedIn = true;
+                punchInTime = new Date();
+                
+                const timeString = punchInTime.toLocaleTimeString();
+                const dateString = punchInTime.toLocaleDateString();
+                
+        
+                document.getElementById('currentStatus').textContent = 'Punched In';
+                document.getElementById('statusTime').textContent = `Since ${timeString}`;
+                document.getElementById('punchInBtn').disabled = true;
+                document.getElementById('punchOutBtn').disabled = false;
+                
+        
+                punchRecords.unshift({
+                    action: 'Punch-in',
+                    time: timeString,
+                    date: dateString
+                });
+                
+        
+                addToRecentActivity(`Checked in at ${timeString}`, 'Today');
+                
+        
+                savePunchState();
+            }
+        }
+
+        
+        function punchOut() {
+            if (isPunchedIn) {
+                isPunchedIn = false;
+                const punchOutTime = new Date();
+                
+                const timeString = punchOutTime.toLocaleTimeString();
+                const dateString = punchOutTime.toLocaleDateString();
+                
+                
+                const hoursWorked = ((punchOutTime - punchInTime) / (1000 * 60 * 60)).toFixed(2);
+                
+                
+                document.getElementById('currentStatus').textContent = 'Punched Out';
+                document.getElementById('statusTime').textContent = `At ${timeString} (${hoursWorked} hours worked)`;
+                document.getElementById('punchInBtn').disabled = false;
+                document.getElementById('punchOutBtn').disabled = true;
+                
+                
+                punchRecords.unshift({
+                    action: 'Punch-out',
+                    time: timeString,
+                    date: dateString
+                });
+                
+                addToRecentActivity(`Checked out at ${timeString}`, 'Today');
+                
+                updateTodayAttendance(hoursWorked);
+                
+                savePunchState();
+                
+                punchInTime = null;
+            }
+        }
+
+        
+        function addToRecentActivity(text, time) {
+            const activityList = document.getElementById('recentActivityList');
+            const newActivity = document.createElement('li');
+            newActivity.className = 'activity-item';
+            newActivity.innerHTML = `
+                <div class="activity-dot"></div>
+                <div class="activity-text">${text}</div>
+                <div class="activity-time">${time}</div>
+            `;
+            activityList.insertBefore(newActivity, activityList.firstChild);
+            
+            // Keep only the latest 4 activities
+            while (activityList.children.length > 4) {
+                activityList.removeChild(activityList.lastChild);
+            }
+        }
+
+        
+        function updateTodayAttendance(hoursWorked) {
+            const today = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            
+            let todayRecord = attendanceHistory.find(record => record.date === today);
+            if (!todayRecord) {
+                todayRecord = {
+                    date: today,
+                    status: 'Present',
+                    shift: 'Day Shift',
+                    hours: hoursWorked
+                };
+                attendanceHistory.unshift(todayRecord);
+            } else {
+                todayRecord.hours = (parseFloat(todayRecord.hours) + parseFloat(hoursWorked)).toFixed(2);
+                todayRecord.status = 'Present';
+                todayRecord.shift = 'Day Shift';
+            }
+        }
+
+       
+        function showHistory() {
+            document.getElementById('dashboardView').classList.remove('active');
+            document.getElementById('historyView').classList.add('active');
+            document.getElementById('punchRecordsView').classList.remove('active');
+            populateHistoryTable();
+        }
+
+        
+        function showPunchRecords() {
+            document.getElementById('dashboardView').classList.remove('active');
+            document.getElementById('historyView').classList.remove('active');
+            document.getElementById('punchRecordsView').classList.add('active');
+            populatePunchRecordsTable();
+        }
+
+        
+        function showDashboard() {
+            document.getElementById('dashboardView').classList.add('active');
+            document.getElementById('historyView').classList.remove('active');
+            document.getElementById('punchRecordsView').classList.remove('active');
+        }
+
+        
+        function populateHistoryTable() {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+            
+            if (attendanceHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="no-data">No data to show!</td></tr>';
+                return;
+            }
+            
+            attendanceHistory.forEach(record => {
+                const row = document.createElement('tr');
+                const statusClass = record.status === 'Present' ? 'status-present' : 
+                                  record.status === 'Absent' ? 'status-absent' : 'status-partial';
+                
+                row.innerHTML = `
+                    <td>${record.date}</td>
+                    <td class="${statusClass}">${record.status}</td>
+                    <td>${record.shift}</td>
+                    <td>${record.hours} hours</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+       
+        function populatePunchRecordsTable() {
+            const tbody = document.getElementById('punchRecordsTableBody');
+            tbody.innerHTML = '';
+            
+            if (punchRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="no-data">No data to show!</td></tr>';
+                return;
+            }
+            
+            punchRecords.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.action}</td>
+                    <td>${record.time}</td>
+                    <td>${record.date}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        
+        function savePunchState() {
+            const state = {
+                isPunchedIn,
+                punchInTime: punchInTime ? punchInTime.toISOString() : null,
+                attendanceHistory,
+                punchRecords
+            };
+            localStorage.setItem('sailPunchState', JSON.stringify(state));
+        }
+
+       
+        function loadPunchState() {
+            const saved = localStorage.getItem('sailPunchState');
+            if (saved) {
+                const state = JSON.parse(saved);
+                isPunchedIn = state.isPunchedIn || false;
+                punchInTime = state.punchInTime ? new Date(state.punchInTime) : null;
+                attendanceHistory = state.attendanceHistory || [];
+                punchRecords = state.punchRecords || [];
+                
+                // Update UI based on loaded state
+                updateUIFromState();
+            }
+        }
+
+       
+        function updateUIFromState() {
+            if (isPunchedIn && punchInTime) {
+                const timeString = punchInTime.toLocaleTimeString();
+                document.getElementById('currentStatus').textContent = 'Punched In';
+                document.getElementById('statusTime').textContent = `Since ${timeString}`;
+                document.getElementById('punchInBtn').disabled = true;
+                document.getElementById('punchOutBtn').disabled = false;
+            } else {
+                document.getElementById('currentStatus').textContent = 'Ready to Punch In';
+                document.getElementById('statusTime').textContent = '';
+                document.getElementById('punchInBtn').disabled = false;
+                document.getElementById('punchOutBtn').disabled = true;
+            }
+        }
+
+        
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        function showPersonalInfo() {
+            const modal = document.getElementById('personalInfoModal');
+            modal.classList.add('show');
+            toggleDropdown();
+        }
+
+        function hidePersonalInfo() {
+            const modal = document.getElementById('personalInfoModal');
+            modal.classList.remove('show');
+        }
+
+        
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdownMenu');
+            const toggleBtn = document.querySelector('.dropdown-toggle');
+            
+            if (!toggleBtn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        
+        document.getElementById('personalInfoModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                hidePersonalInfo();
+            }
+        });
+
+       
+        window.addEventListener('load', function() {
+            initializeData();
+            loadPunchState();
+            
+            
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.opacity = '1';
+                }, index * 100);
+            });
+        });
+
+       
+        setInterval(() => {
+            if (isPunchedIn && punchInTime) {
+                const now = new Date();
+                const elapsedTime = ((now - punchInTime) / (1000 * 60 * 60)).toFixed(2);
+                const timeString = punchInTime.toLocaleTimeString();
+                document.getElementById('statusTime').textContent = `Since ${timeString} (${elapsedTime} hours)`;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

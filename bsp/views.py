@@ -196,12 +196,6 @@ def superuser_dashboard(request):
         else:
             return HttpResponseForbidden("You do not have permission to view this resource.") 
 
-
-    # @login_required(login_url="/accounts/login/")
-    # def punching_home(request):
-    #     context={}
-    #     return render(request, "bsp/punches/phome.html", context)
-
     else:
         return HttpResponseForbidden("You do not have permission to view this resource")
 
@@ -300,6 +294,279 @@ def attendance_history(request):
 
 
 
+@login_required(login_url="/accounts/login/")
+def show_dept_users(request):
+    if request.user.is_authenticated:
+        if user_is_dept_hr(request):
+            uname=request.user.username
+            user_obj = User.objects.get(username=uname)
+            users= CommonClass.get_dept_users(user_obj)
+            personal_details = CommonClass.get_info(user_obj)
+
+            context={
+            "users":users,
+            # "details":details,
+            "flag":1,
+            "info":personal_details,
+                }
+            
+            return render(request, "bsp/users/duser.html", context)
+
+
+    else:
+        return HttpResponseForbidden("You do not have permission to view this resource")
+            
+
+@login_required(login_url="/accounts/login/")
+def show_dept_present_users(request):
+    if request.user.is_authenticated:
+        if user_is_dept_hr(request):
+            uname=request.user.username
+            user_obj = User.objects.get(username=uname)
+            users_in_dept= CommonClass.get_todays_users_for_dept(user_obj)
+
+            d1={}
+            for usr in users_in_dept["present_count"]:
+                d1 = EmployeeDetails.get_employee_details(usr)
+                usr.department_name = usr.department_id.department_name
+                usr.designation_name = usr.designation_id.designation_name
+                usr.bsp_id = d1["bsp_id"]
+                usr.phone = d1["phone"]
+                usr.address = d1["corr_address"]
+                usr.emer = d1["emergency_contact"]
+
+            personal_details = CommonClass.get_info(user_obj)
+
+            context={
+            "users":users_in_dept["present_count"],
+            # "details":details,
+            "flag":1,
+            "info":personal_details,
+            "dept":user_obj.department_id.department_name,
+            "type":"present",
+                }
+            
+            return render(request, "bsp/users/wuser.html", context)
+
+
+    else:
+        return HttpResponseForbidden("You do not have permission to view this resource")
+            
+
+
+@login_required(login_url="/accounts/login/")
+def show_dept_absent_users(request):
+    if request.user.is_authenticated:
+        if user_is_dept_hr(request):
+            uname=request.user.username
+            user_obj = User.objects.get(username=uname)
+            users_in_dept= CommonClass.get_todays_users_for_dept(user_obj)
+
+            d1={}
+            for usr in users_in_dept["absent_count"]:
+                d1 = EmployeeDetails.get_employee_details(usr)
+                usr.department_name = usr.department_id.department_name
+                usr.designation_name = usr.designation_id.designation_name
+                usr.bsp_id = d1["bsp_id"]
+                usr.phone = d1["phone"]
+                usr.address = d1["corr_address"]
+                usr.emer = d1["emergency_contact"]
+
+            personal_details = CommonClass.get_info(user_obj)
+
+            context={
+            "users":users_in_dept["absent_count"],
+            # "details":details,
+            "flag":1,
+            "info":personal_details,
+            "dept":user_obj.department_id.department_name,
+            "type":"absent",
+                }
+            
+            return render(request, "bsp/users/wuser.html", context)
+
+
+    else:
+        return HttpResponseForbidden("You do not have permission to view this resource")
+            
+
+
+@login_required(login_url="/accounts/login/")
+def show_dept_late_users(request):
+    if request.user.is_authenticated:
+        if user_is_dept_hr(request):
+            uname=request.user.username
+            user_obj = User.objects.get(username=uname)
+            users_in_dept= CommonClass.get_todays_users_for_dept(user_obj)
+
+            d1={}
+            for usr in users_in_dept["late_count"]:
+                d1 = EmployeeDetails.get_employee_details(usr)
+                usr.department_name = usr.department_id.department_name
+                usr.designation_name = usr.designation_id.designation_name
+                usr.bsp_id = d1["bsp_id"]
+                usr.phone = d1["phone"]
+                usr.address = d1["corr_address"]
+                usr.emer = d1["emergency_contact"]
+
+            personal_details = CommonClass.get_info(user_obj)
+
+            context={
+            "users":users_in_dept["late_count"],
+            # "details":details,
+            "flag":1,
+            "info":personal_details,
+            "dept":user_obj.department_id.department_name,
+            "type":"late",
+                }
+            
+            return render(request, "bsp/users/wuser.html", context)
+
+
+    else:
+        return HttpResponseForbidden("You do not have permission to view this resource")
+            
+
+
+@login_required(login_url="/accounts/login/")
+def show_all_present_users(request):
+    if request.user.is_authenticated:
+        if user_is_dept_hr(request):
+            uname=request.user.username
+            user_obj = User.objects.get(username=uname)
+            users_in_dept= CommonClass.get_todays_users_for_all_dept()
+
+            d1={}
+            for usr in users_in_dept["present_count"]:
+                d1 = EmployeeDetails.get_employee_details(usr)
+                usr.department_name = usr.department_id.department_name
+                usr.designation_name = usr.designation_id.designation_name
+                usr.bsp_id = d1["bsp_id"]
+                usr.phone = d1["phone"]
+                usr.address = d1["corr_address"]
+                usr.emer = d1["emergency_contact"]
+
+            personal_details = CommonClass.get_info(user_obj)
+
+            context={
+            "users":users_in_dept["present_count"],
+            # "details":details,
+            "flag":1,
+            "info":personal_details,
+            "dept":user_obj.department_id.department_name,
+            "type":"present",
+                }
+            
+            return render(request, "bsp/users/quser.html", context)
+
+
+    else:
+        return HttpResponseForbidden("You do not have permission to view this resource")
+            
+
+
+@login_required(login_url="/accounts/login/")
+def show_all_absent_users(request):
+    if request.user.is_authenticated:
+        if user_is_dept_hr(request):
+            uname=request.user.username
+            user_obj = User.objects.get(username=uname)
+            users_in_dept= CommonClass.get_todays_users_for_all_dept()
+
+            d1={}
+            for usr in users_in_dept["absent_count"]:
+                d1 = EmployeeDetails.get_employee_details(usr)
+                usr.department_name = usr.department_id.department_name
+                usr.designation_name = usr.designation_id.designation_name
+                usr.bsp_id = d1["bsp_id"]
+                usr.phone = d1["phone"]
+                usr.address = d1["corr_address"]
+                usr.emer = d1["emergency_contact"]
+
+            personal_details = CommonClass.get_info(user_obj)
+
+            context={
+            "users":users_in_dept["absent_count"],
+            # "details":details,
+            "flag":1,
+            "info":personal_details,
+            "dept":user_obj.department_id.department_name,
+            "type":"absent",
+                }
+            
+            return render(request, "bsp/users/quser.html", context)
+
+
+    else:
+        return HttpResponseForbidden("You do not have permission to view this resource")
+            
+
+
+@login_required(login_url="/accounts/login/")
+def show_all_late_users(request):
+    if request.user.is_authenticated:
+        if user_is_dept_hr(request):
+            uname=request.user.username
+            user_obj = User.objects.get(username=uname)
+            users_in_dept= CommonClass.get_todays_users_for_all_dept()
+
+            d1={}
+            for usr in users_in_dept["late_count"]:
+                d1 = EmployeeDetails.get_employee_details(usr)
+                usr.department_name = usr.department_id.department_name
+                usr.designation_name = usr.designation_id.designation_name
+                usr.bsp_id = d1["bsp_id"]
+                usr.phone = d1["phone"]
+                usr.address = d1["corr_address"]
+                usr.emer = d1["emergency_contact"]
+
+            personal_details = CommonClass.get_info(user_obj)
+
+            context={
+            "users":users_in_dept["late_count"],
+            # "details":details,
+            "flag":1,
+            "info":personal_details,
+            "dept":user_obj.department_id.department_name,
+            "type":"late",
+                }
+            
+            return render(request, "bsp/users/quser.html", context)
+
+
+    else:
+        return HttpResponseForbidden("You do not have permission to view this resource")
+            
+
+
+
+        
+
+@login_required(login_url="/accounts/login/")
+def show_all_users(request):
+    if request.user.is_authenticated:
+        # uname=request.user.username
+        if user_is_superuser(request):
+
+        # user_obj = User.objects.get(username=uname)
+        # return        if user_is_dept_hr(request):
+            uname=request.user.username
+            user_obj = User.objects.get(username=uname)
+            users= CommonClass.get_all_users()
+            personal_details = CommonClass.get_info(user_obj)
+
+            context={
+            "users":users,
+            # "details":details,
+            "flag":1,
+            "info":personal_details,
+                }
+            
+            return render(request, "bsp/users/auser.html", context)
+
+
+    else:
+        return HttpResponseForbidden("You do not have permission to view this resource")
 
 
 

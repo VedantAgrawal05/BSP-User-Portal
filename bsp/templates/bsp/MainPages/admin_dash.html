@@ -737,6 +737,15 @@
             position: relative;
         }
 
+        .tile-click{
+            text-decoration:none;   
+            opacity: 1;
+            transition: opacity 0.1s ease; /* Smooth transition */
+        }
+
+        .tile-click:hover {
+            opacity: 0.75;
+        }
     </style>
 </head>
 <body>
@@ -759,7 +768,10 @@
                 <a href="{% url 'bsp:home' %}" class="dropdown-item">Dashboard Home</a>
                 {% if is_dept_hr %}
                 <a href="{% url 'bsp:hr_dash' %}" class="dropdown-item">HR Dashboard</a>
-                {% endif %}
+                {% endif %}                
+                <a href="{% url 'bsp:all_users' %}" class="dropdown-item">
+                    Company Employees
+                </a>
 <div>
     <form id="logout-form" method="post" action="{% url 'logout' %}">
   {% csrf_token %}
@@ -900,18 +912,29 @@
                         <div class="card full-card">
                             <h3>Company Statistics</h3>
                         <div class="stats-overview">
+                        <a href="{% url 'bsp:all_users' %}" class="tile-click">
                             <div class="stat-card">
                                 <span class="stat-number">{{all_emps_info.num_emps}}</span>
                                 <span class="stat-label">Total Employees</span>
                             </div>
+                        </a>
                             <div class="stat-card">
                                 <span class="stat-number">{{all_emps_info.num_depts}}</span>
                                 <span class="stat-label">Departments</span>
                             </div>
+
+                            <a href="{% url 'bsp:all_pres_users' %}" class="tile-click">
                             <div class="stat-card">
                                 <span class="stat-number">{{all_emps_info.tot_pres}}</span>
                                 <span class="stat-label">Present Today</span>
                             </div>
+                        </a>
+                            <a href="{% url 'bsp:all_abs_users' %}" class="tile-click">
+                            <div class="stat-card">
+                                <span class="stat-number">{{all_emps_info.tot_abs}}</span>
+                                <span class="stat-label">Absent Today</span>
+                            </div>
+                        </a>
 
                             <div class="stat-card">
                                 <span class="stat-number">{{all_emps_info.tod_attend}}</span>
@@ -981,6 +1004,10 @@
                 <div class="info-item">
                     <span class="info-label">Position</span>
                     <span class="info-value">{{info.employee_details.designation}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Date of Birth</span>
+                    <span class="info-value">{{info.employee_details.dob}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Date of Joining</span>
