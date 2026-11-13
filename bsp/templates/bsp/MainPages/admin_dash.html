@@ -749,6 +749,7 @@
     </style>
 </head>
 <body>
+    {% include "bsp/includes/messages.html" %}
     {% if flag %}
     <header class="header">
         <div class="logo-section">
@@ -787,83 +788,16 @@
             <h2>Central HR Dashboard</h2>
             <p>Monitor and manage HR operations across all departments</p>
         </div>
-
-        {% comment %} <div class="card-a">
-                <h2 class="card-title-a">📊 Department Attendance</h2>
-                <div class="card-wrapper">
-                    <div class="bar-wrapper bar1-wrapper">
-                        <div class="chart-bar bar1"></div>
-                        <span class="bar-label">Production</span>
-                    </div>
-                    <div class="bar-wrapper bar2-wrapper">
-                        <div class="chart-bar bar2"></div>
-                        <span class="bar-label">Maintenance</span>
-                    </div>
-                    <div class="bar-wrapper bar3-wrapper">
-                        <div class="chart-bar bar3"></div>
-                        <span class="bar-label">Quality</span>
-                    </div>
-                    <div class="bar-wrapper bar4-wrapper">
-                        <div class="chart-bar bar4"></div>
-                        <span class="bar-label">Admin</span>
-                    </div>
-                    <div class="bar-wrapper bar5-wrapper">
-                        <div class="chart-bar bar5"></div>
-                        <span class="bar-label">Security</span>
-                    </div>
-                    <div class="bar-wrapper bar6-wrapper">
-                        <div class="chart-bar bar6"></div>
-                        <span class="bar-label">Transport</span>
-                    </div>
-                </div>
-            </div> {% endcomment %}
-
-            {% comment %} <div class="card-wrapper-b">
-                {% for bar in bar_data %}
-                <div class="bar-wrapper">
-                    <div class="chart-bar-b" style="
-                        height: {{ bar.height|floatformat:0 }}%;
-                        background: linear-gradient(to top, #63b3ed, #4299e1);">
-                    </div>
-                    <span class="bar-label">{{ bar.label }}</span>
-                </div>
-                {% endfor %}
-            </div> {% endcomment %}
-
             <div class="card-wrapper-b">
                     📊 Department Attendance
             </div>
-            {% comment %} <div class="card-wrapper">
-                    {% for bar in bar_data %}
-                    <div class="bar-wrapper">
-                        <div class="chart-bar"
-                            style="height: {{ bar.height }}px;
-                                    background: linear-gradient(to top, #63b3ed, #4299e1);">
-                        </div>
-                        <span class="bar-label">{{ bar.label }}</span>
-                    </div>
-                    {% endfor %}
-                </div> {% endcomment %}
                 <div class="card-wrapper">
                     <canvas id="barChartCanvas"></canvas>  
                 </div>
-
-
-
-
         <div class="dashboard-row">
-
-
-
-
             <div class="card half-card1">
                 <h3>Employee Distribution</h3>
                 <div class="chart-container">
-                    {% comment %} <div class="chart-placeholder">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
-                        <p>Employee Distribution Chart</p>
-                        <small style="color: #7f8c8d;">Across Departments</small>
-                    </div> {% endcomment %}
                     <canvas id="employeeDistributionChart"></canvas>
 
                 </div>
@@ -872,43 +806,11 @@
             <div class="card half-card2">
                 <h3>Attendance Trends</h3>
                 <div class="chart-container">
-                    {% comment %} <div class="chart-placeholder">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
-                        <p>Monthly Attendance Graph</p>
-                        <small style="color: #7f8c8d;">Last 6 Months</small>
-                    </div> {% endcomment %}
                     <canvas id="attendanceTrendsChart"></canvas>
 
                 </div>
             </div>
 
-            {% comment %} <div class="card">
-                <h3>Performance Metrics</h3>
-                <div class="chart-container">
-
-                    <canvas id="performanceMetricsChart"></canvas>
-
-                </div>
-            </div> {% endcomment %}
-
-            {% comment %} <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">{{all_emps_info.num_emps}}</div>
-                    <div class="stat-label">Total Employees</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">{{all_emps_info.num_depts}}</div>
-                        <div class="stat-label">Departments</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">{{all_emps_info.avg_attend}}</div>
-                        <div class="stat-label">Avg Attendance</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">{{all_emps_info.tot_pres}}</div>
-                        <div class="stat-label">Present Today</div>
-                        </div>
-                        </div> {% endcomment %}
                         <div class="card full-card">
                             <h3>Company Statistics</h3>
                         <div class="stats-overview">
@@ -955,13 +857,13 @@
             <a href="{% url 'admin:index' %}" target="_blank" class="action-button">
                  Manage Employees
             </a>
-            {% comment %} <a href="#" class="action-button" onclick="viewDepartments()">
-                🏢 Department Overview
-                </a>
-                <a href="#" class="action-button" onclick="hrAnalytics()">
-                    📊 HR Analytics
-                    </a> {% endcomment %}
-                </div>
+            <a href="{% url 'bsp:export_employees_csv' %}" class="action-button">
+                📥 Export Employees CSV
+            </a>
+            <a href="{% url 'bsp:export_attendance_csv' %}" class="action-button">
+                📥 Export Attendance CSV
+            </a>
+            </div>
             
     </main>
 
@@ -1053,37 +955,15 @@ const attendMon = JSON.parse('{{ attendMonths|safe }}');
   new Chart(document.getElementById('employeeDistributionChart'), {
     type: 'pie',
     data: {
-      //labels: ['Production', 'Maintenance', 'Admin', 'HR', 'Security'],
       labels: barLabs,
       datasets: [{
         label: 'Employees',
         data: {{ piechartWeights }},
         backgroundColor: bgCols ,
-        //backgroundColor: ['#63b3ed', '#f6ad55', '#48bb78', '#ed64a6', '#ecc94b'],
         borderColor: '#1a202c',
         borderWidth: 1
       }]
     },
-   // options: {
-   //   plugins: {
-    //    legend: { position: 'bottom' }
-    //  }
-    //}
-//    options: {
-//  plugins: {
-//    legend: {
-//      position: 'bottom',
-//              labels: {
-//        color: '#e2e8f0'  // legend text color
-//      }  // legend text color
-//      }
-//    },
-//    tooltip: {
-//      bodyColor: '#fefcbf',    // tooltip text color
-//      titleColor: '#faf089',   // tooltip title color
-//      backgroundColor: '#2d3748' // optional: tooltip bg
-//    }
-//  },
 options: {
   layout: {
     padding: {
@@ -1172,37 +1052,6 @@ options: {
 
 });
 
-  // Performance Metrics (Bar Chart)
-//  new Chart(document.getElementById('performanceMetricsChart'), {
-//    type: 'bar',
-//    data: {
-//      labels: ['Production', 'Maintenance', 'Admin', 'HR', 'Security'],
-//      datasets: [{
-//        label: 'Performance Score',
-//        data: [78, 85, 72, 80, 70],
-//        backgroundColor: '#68d391',
-//        borderRadius: 6
-//      }]
-//    },
-//    options: {
-//      scales: {
-//        y: { beginAtZero: true, max: 100 }
-//      }
-//    }
-//  });
-
-
-//const barRawData = JSON.parse(document.getElementById("bar-data").textContent);
-
-//const barLabels = barRawData.map(item => item.label);
-//const barHeights = barRawData.map(item => item.height);
-
-//console.log(barLabels)
-
-//    const data = JSON.parse(document.getElementById('mydata').textContent);
-//    mydata = data['barLabels'];
-//    console.log("mydata");
-//    console.log(mydata);
 const barCanvas = document.getElementById("barChartCanvas");
 if (barCanvas) {
   const barCtx = barCanvas.getContext("2d");

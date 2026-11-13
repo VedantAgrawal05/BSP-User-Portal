@@ -12,21 +12,26 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5*gzrlpo5ci2rb=fg*7x*d0(!(20w6v8%0-g3o70jlk5)w)j%5'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-5*gzrlpo5ci2rb=fg*7x*d0(!(20w6v8%0-g3o70jlk5)w)j%5')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS', '*')
+ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
 
 
 # Application definition
@@ -45,11 +50,11 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'bsp.middleware.RequestMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -84,12 +89,12 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "bsp_site_2",
-        "USER": "ak_user",
-        "PASSWORD": "ytterbium",
-        # "HOST": "127.0.0.1",
-        # "PORT": "5432",
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),
+        "NAME": os.getenv("DB_NAME", "bsp_site_2"),
+        "USER": os.getenv("DB_USER", "root"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "Logitech1*"),
+        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+        "PORT": os.getenv("DB_PORT", "3306"),
     }
 }
 
@@ -116,12 +121,22 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'  # default language
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('hi', 'Hindi'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',  # path where translation files will be stored
+]
 
 TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = False
 
 

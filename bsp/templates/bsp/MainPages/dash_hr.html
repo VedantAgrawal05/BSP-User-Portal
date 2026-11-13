@@ -941,6 +941,7 @@
     </style>
 </head>
 <body>
+    {% include "bsp/includes/messages.html" %}
     {%if flag %}
     <header class="header">
         <div class="logo-section">
@@ -1020,55 +1021,10 @@
             </div>
 
             <div class="dashboard-grid">
-                <!-- Department Attendance Chart -->
-                {% comment %} <div class="card">
-                    <h2 class="card-title">📊 Department Attendance</h2>
-                    <div class="chart-container">
-                        <div class="bar-wrapper bar1-wrapper">
-                            <div class="chart-bar bar1"></div>
-                            <span class="bar-label">Production</span>
-                        </div>
-                        <div class="bar-wrapper bar2-wrapper">
-                            <div class="chart-bar bar2"></div>
-                            <span class="bar-label">Maintenance</span>
-                        </div>
-                        <div class="bar-wrapper bar3-wrapper">
-                            <div class="chart-bar bar3"></div>
-                            <span class="bar-label">Quality</span>
-                        </div>
-                        <div class="bar-wrapper bar4-wrapper">
-                            <div class="chart-bar bar4"></div>
-                            <span class="bar-label">Admin</span>
-                        </div>
-                        <div class="bar-wrapper bar5-wrapper">
-                            <div class="chart-bar bar5"></div>
-                            <span class="bar-label">Security</span>
-                        </div>
-                        <div class="bar-wrapper bar6-wrapper">
-                            <div class="chart-bar bar6"></div>
-                            <span class="bar-label">Transport</span>
-                        </div>
-                    </div>
-                </div> {% endcomment %}
 
                 <!-- Attendance Distribution -->
                 <div class="card">
                     <h2 class="card-title">📈 Today's Status</h2>
-                    {% comment %} <div class="donut-chart"></div> {% endcomment %}
-                    {% comment %} <div class="donut-chart"
-     style="background: conic-gradient(
-         #68d391 0deg {{ green_angle }}deg,
-         #fc8181 {{ green_angle }}deg {{ red_angle }}deg,
-         #4a5568 {{ red_angle }}deg 360deg);">
-</div> {% endcomment %}
-
-{% comment %} <div class="donut-chart"
-     style="background: conic-gradient(
-         #68d391 {{ green_start }}deg {{ green_end }}deg,
-         #ed8936 {{ red_start }}deg {{ red_end }}deg,
-         #4a5568 {{ orange_start }}deg {{ orange_end }}deg
-     );">
-</div> {% endcomment %}
 
 <div class="donut-chart"
      style="background: conic-gradient(
@@ -1092,35 +1048,9 @@
                             <div class="legend-color legend-absent"></div>
                             <span>Absent {{info.absent_count}}</span>
                         </div>
-                        {% comment %}<div class="legend-item">
-                            <div class="legend-color legend-leave"></div>
-                            <span>On Leave (15)</span>
-                            {% endcomment %}
                         </div> 
                     </div>
                 </div>
-
-                {% comment %} <!-- Recent Leaves -->
-                <div class="card">
-                    <h2 class="card-title">🏖 Recent Leave Requests</h2>
-                    <div class="info-item">
-                        <span class="info-label">Rajesh Kumar - Casual Leave</span>
-                        <span class="status-badge" style="background: rgba(237, 137, 54, 0.2); color: #ed8936;">Pending</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Anjali Singh - Medical Leave</span>
-                        <span class="status-badge status-present">Approved</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Mukesh Yadav - Sick Leave</span>
-                        <span class="status-badge status-present">Approved</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Sunita Devi - Annual Leave</span>
-                        <span class="status-badge" style="background: rgba(237, 137, 54, 0.2); color: #ed8936;">Pending</span>
-                    </div>
-                </div> {% endcomment %}
-
                 <!-- Performance Alerts -->
                 <div class="card">
                     <h2 class="card-title">⚠ Performance Alerts</h2>
@@ -1136,147 +1066,14 @@
                         <span class="info-label">Excellent Attendance (&gt; 95%)</span>
                         <span class="info-value">{%if info.exc_attend%}{{info.exc_attend}}{% else %}0{%endif%} Employees</span>
                     </div>
-                    {% comment %} <div class="info-item">
-                        <span class="info-label">Pending Reviews</span>
-                        <span class="info-value">23 Employees</span>
-                    </div> {% endcomment %}
+
                 </div>
             </div>
         </div>
 
         <!-- Worker Monitoring Page -->
-        <div id="worker-monitoring" class="page">
-            <div class="dashboard-header">
-                <h1 class="dashboard-title">Worker Monitoring</h1>
-                <p class="dashboard-subtitle">Detailed view of individual worker statistics and performance</p>
-            </div>
-
-            <div class="employees-table">
-                <div class="table-header">
-                    <h2 class="table-title">Employee Attendance Monitor</h2>
-                    <input type="text" class="search-box" placeholder="Search employees..." id="searchBox">
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Employee ID</th>
-                            <th>Name</th>
-                            <th>Department</th>
-                            <th>Status</th>
-                            <th>Check-in</th>
-                            <th>Hours</th>
-                            <th>Attendance %</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="employeeTableBody">
-                        <tr>
-                            <td>SAIL001234</td>
-                            <td>Rajesh Kumar Singh</td>
-                            <td>Production</td>
-                            <td><span class="status-badge status-present">Present</span></td>
-                            <td>09:15 AM</td>
-                            <td>8.2</td>
-                            <td>92%</td>
-                            <td><button class="action-btn" onclick="viewWorkerDetails('SAIL001234')">View Details</button></td>
-                        </tr>
-                        <tr>
-                            <td>SAIL001235</td>
-                            <td>Anjali Sharma</td>
-                            <td>Quality</td>
-                            <td><span class="status-badge status-absent">Absent</span></td>
-                            <td>--</td>
-                            <td>0</td>
-                            <td>88%</td>
-                            <td><button class="action-btn" onclick="viewWorkerDetails('SAIL001235')">View Details</button></td>
-                        </tr>
-                        <tr>
-                            <td>SAIL001236</td>
-                            <td>Mukesh Yadav</td>
-                            <td>Maintenance</td>
-                            <td><span class="status-badge status-late">Late</span></td>
-                            <td>09:45 AM</td>
-                            <td>7.8</td>
-                            <td>85%</td>
-                            <td><button class="action-btn" onclick="viewWorkerDetails('SAIL001236')">View Details</button></td>
-                        </tr>
-                        <tr>
-                            <td>SAIL001237</td>
-                            <td>Sunita Devi</td>
-                            <td>Admin</td>
-                            <td><span class="status-badge status-present">Present</span></td>
-                            <td>08:55 AM</td>
-                            <td>8.5</td>
-                            <td>96%</td>
-                            <td><button class="action-btn" onclick="viewWorkerDetails('SAIL001237')">View Details</button></td>
-                        </tr>
-                        <tr>
-                            <td>SAIL001238</td>
-                            <td>Amit Gupta</td>
-                            <td>Production</td>
-                            <td><span class="status-badge status-present">Present</span></td>
-                            <td>09:10 AM</td>
-                            <td>8.3</td>
-                            <td>94%</td>
-                            <td><button class="action-btn" onclick="viewWorkerDetails('SAIL001238')">View Details</button></td>
-                        </tr>
-                        <tr>
-                            <td>SAIL001239</td>
-                            <td>Kavita Singh</td>
-                            <td>Security</td>
-                            <td><span class="status-badge status-present">Present</span></td>
-                            <td>08:30 AM</td>
-                            <td>8.7</td>
-                            <td>98%</td>
-                            <td><button class="action-btn" onclick="viewWorkerDetails('SAIL001239')">View Details</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        
     </main>
-
-    {% comment %} <!-- Personal Information Modal -->
-    <div class="modal" id="personalInfoModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Personal Information</h2>
-                <button class="close-btn" onclick="hidePersonalInfo()">&times;</button>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Employee ID</span>
-                <span class="info-value">HR001</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Full Name</span>
-                <span class="info-value">Priya Sharma</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Department</span>
-                <span class="info-value">Human Resources</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Position</span>
-                <span class="info-value">HR Manager</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Date of Joining</span>
-                <span class="info-value">10-Jan-2018</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Email</span>
-                <span class="info-value">priya.sharma@bhilaissteel.com</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Phone</span>
-                <span class="info-value">+91 98765 12345</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Address</span>
-                <span class="info-value">Sector 2, Bhilai, Chhattisgarh</span>
-            </div>
-        </div>
-    </div> {% endcomment %}
 
     <!-- Personal Information Modal -->
     <div class="personal-info-modal" id="personalInfoModal">

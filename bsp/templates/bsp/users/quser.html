@@ -775,7 +775,10 @@
          <div id="punchRecordsView" class="view">
             <div class="card">
                 <h2 class="card-title">Today's {{type}} employees in Company</h2>
-                <a href="{% url 'bsp:superuser_dash' %}" class="back-button nav-button">Back</a>
+                <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                    <a href="{% url 'bsp:superuser_dash' %}" class="back-button nav-button">← Back to Dashboard</a>
+                    <a href="{% url 'bsp:export_attendance_csv' %}" class="back-button nav-button" style="background: #38a169;">📥 Export Attendance CSV</a>
+                </div>
 
                 {% if flag %}
                 <div id="punchRecordsContent" class="table-wrapper">

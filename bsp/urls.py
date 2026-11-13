@@ -11,7 +11,8 @@ app_name = "bsp"
 urlpatterns = [
     path("home/", views.homepage, name="home"),
     path("HR-Dashboard/", views.dept_hr_dashboard, name="hr_dash"),
-    path("Admin-Dashboard", views.superuser_dashboard, name="superuser_dash"),
+    path("Admin-Dashboard/", views.superuser_dashboard, name="superuser_dash"),
+    path("Admin-Dashboard", views.superuser_dashboard),
     path("punch-in/", views.punch_in, name="punch_in"),
     path("punch-out/", views.punch_out, name="punch_out"),
     path("user-punches/", views.punch_history, name="punch_log"),
@@ -24,7 +25,10 @@ urlpatterns = [
     path("Admin-Dashboard/all-pres-employees/", views.show_all_present_users, name="all_pres_users"),
     path("Admin-Dashboard/all-abs-employees/", views.show_all_absent_users, name="all_abs_users"),
     path("Admin-Dashboard/all-late-employees/", views.show_all_late_users, name="all_late_users"),
-
+    path('set-language/', views.set_language, name='set_language'),
+    path("export/employees-csv/", views.export_employees_csv, name="export_employees_csv"),
+    path("export/attendance-csv/", views.export_attendance_csv, name="export_attendance_csv"),
+    path("payslip/", views.view_payslip, name="view_payslip"),
 
 
     # path('accounts/login/', auth_views.LoginView.as_view(), name='login'),

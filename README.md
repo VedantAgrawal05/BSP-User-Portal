@@ -1,180 +1,109 @@
-# First time stuff (only once)
-## Reuirements
-* Python installed
-* MySQL installed [guide](https://dev.mysql.com/downloads/installer/)
-**IMPORTANT**: Note the username and password separately you use during installation 
+# 🏭 SAIL Bhilai Steel Plant (BSP) — Remodeled User Portal
 
-## After opening the repo folder in VS Code
-Run following code in terminal
+An enterprise employee attendance, shift tracking, and human resources portal designed for the **Steel Authority of India Limited (SAIL) — Bhilai Steel Plant (BSP)**. Developed as a Vocational Training Project under the **Computer & Information Technology (C&IT) Department**, Bhilai Steel Plant.
+
+---
+
+## 👥 Project Team
+- **Animesh Banerjee**
+- **Arnav Kaser**
+- **Vedant Agrawal** ([@VedantAgrawal05](https://github.com/VedantAgrawal05))
+
+---
+
+## ✨ Features & Capabilities
+
+### 1. ⏱️ Live Plant Shift & Real-Time Duty Tracker
+- Real-time dynamic shift mapping matching SAIL operational timings:
+  - **Shift A (Morning)**: `06:00 AM – 02:00 PM`
+  - **General Shift (G)**: `09:00 AM – 05:00 PM`
+  - **Shift B (Evening)**: `02:00 PM – 10:00 PM`
+  - **Shift C (Night)**: `10:00 PM – 06:00 AM`
+- Live ticking digital clock with auto-updating duty status pill badges (*On Duty*, *Shift Completed*, *Punch In Pending*).
+- Immediate punch-in and punch-out logging with duplicate punch prevention.
+
+### 2. 📊 Central HR & Department HR Analytics
+- **Superuser / Central HR Dashboard**: Plant-wide visibility of employee strength, total check-ins today, attendance percentage, and department-by-department breakdowns.
+- **Department HR Dashboard**: Departmental attendance metrics, frequent late arrivals alert, and monthly attendance charts.
+- **Filtered Roster Views**: One-click drill-downs into *Present Today*, *Absent Today*, and *Late Arrivals*.
+
+### 3. 📥 CSV Spreadsheet Export
+- One-click roster export for Central HR and Department HR:
+  - **Employee Directory CSV**: Full profile records, IDs, designations, contact information, and plant departments.
+  - **Daily Attendance Roster CSV**: Timestamped record of today's attendance status across all plant departments.
+
+### 4. 📄 Printable SAIL Payslip
+- Branded, print-ready digital payslip with SAIL header, employee details, pay slab breakdown (Basic Salary, Allowances, Deductions, Net Salary), and formatted currency in Indian numbering system (`₹ XX,XX,XXX`).
+
+### 5. 🔔 Modern Toast Notifications
+- Instant visual feedback on all user actions (punch in, punch out, new employee registration, validation alerts) with auto-dismissing toast alerts.
+
+### 6. 🌱 One-Command Automated Data Seeder
+- Includes `python manage.py seed_data` to automatically provision 11 plant departments, 11 designations, 10 pay slabs, 6 demo accounts, and 30 days of realistic attendance history.
+
+---
+
+## 🛠️ Technology Stack
+- **Backend Framework**: Python 3.13 / Django 5.2 (LTS)
+- **Database**: MySQL 8.0 / MySQL Connector
+- **Frontend**: Responsive HTML5, Modern CSS3 (Glassmorphism / Dark Theme), Vanilla JavaScript
+- **Security & Config**: `python-dotenv` environment variable isolation
+
+---
+
+## 🚀 Quickstart Guide
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/VedantAgrawal05/BSP-User-Portal.git
+cd BSP-User-Portal
 ```
+
+### 2. Set Up Virtual Environment & Dependencies
+```bash
 python -m venv venv
-```
-Next, one of these should work
-```
-venv\Scripts\activate
-venv\Scripts\Activate.bat
-```
-After this, open a new terminal. VS Code should show a popup about venv activation in bottom right. run the next codes in the new terminal
-```
-pip install Django python-dateutil mysql-connector
+venv\Scripts\activate   # On Linux/macOS: source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-Verify installation (should return a number 5.x.x or something like that)
-```
-py -m django --version
+### 3. Configure Environment Variables
+Copy `.env.example` to `.env` and set your MySQL credentials:
+```ini
+DJANGO_SECRET_KEY=your-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+
+DB_NAME=bsp_site_2
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_HOST=127.0.0.1
+DB_PORT=3306
 ```
 
-### Leave terminal open, and open MySQL Command Line client 
-* Ensure you are able to log in using the password you created during installation
-* If any issues, reinstall MySQL and repeat step
-* Once you are able to see the mysql> prompt it is okay
-run below query
-```
-create database bsp_site_2;
+### 4. Initialize Database & Seed Demo Data
+```bash
+python manage.py migrate
+python manage.py seed_data
 ```
 
-Come back to VS Code and go to /app/settings.py file
-Scroll down to DATABASES variable (line 85)
-change the "USER" and "PASSWORD" key values to your username and password of mysql and save
+### 5. Launch Development Server
+```bash
+python manage.py runserver 127.0.0.1:8000
+```
+Open **http://127.0.0.1:8000/** in your browser.
 
+---
 
-### Run below commands
-```
-py manage.py makemigrations
-``` 
-```
-py manage.py migrate
+## 🔑 Pre-Configured Demo Accounts
 
-```
-after below command, enter your preferred username email and password (note down these username and password as well) (note: password won't be visible when typing)
-```
-py manage.py createsuperuser
-```
+| Username | Role / Department | Default Password | Access Level |
+|---|---|---|---|
+| `central_hr` | Central Human Resources | `Logitech1*` | Superuser / Central HR Admin |
+| `hr_user` | Dept HR (Computer & IT) | `Logitech1*` | Department HR Dashboard |
+| `user2` | Mechanical Engineering | `Logitech1*` | Standard Employee Portal |
+| `archit` | Information Technology | `Logitech1*` | System Administrator |
 
-### Open MySQL and run below queries one by one
-for pasting in mysql use shift + insert if ctrl+v doesn't work
-```sql
-use bsp_site_2;
-```
+---
 
-```sql
-INSERT INTO bsp_paydetails (basic_salary, allowances, deductions, net_salary, designation_id) VALUES
-(50000.00, 10000.00, 5000.00, 55000.00, 1),
-(45000.00, 8000.00, 4000.00, 49000.00, 2),
-(60000.00, 15000.00, 7000.00, 68000.00, 3),
-(30000.00, 5000.00, 2000.00, 33000.00, 4),
-(75000.00, 20000.00, 10000.00, 85000.00, 5),
-(55000.00, 9000.00, 3000.00, 61000.00, 6),
-(42000.00, 6000.00, 2500.00, 45500.00, 7),
-(38000.00, 4000.00, 1800.00, 40200.00, 8),
-(67000.00, 12000.00, 6000.00, 73000.00, 9),
-(52000.00, 7500.00, 3500.00, 56000.00, 10);
-```
-
-```sql
-INSERT INTO bsp_employeedetails (
-    res_address, 
-    corr_address, 
-    phone_number, 
-    emergency_contact_name, 
-    emergency_contact_number, 
-    username_id
-) VALUES
-(
-    '123 Park Street, Kolkata, West Bengal',
-    '456 Lake Road, Kolkata, West Bengal',
-    9876543210,
-    'Anita Sharma',
-    9123456780,
-    1
-),
-(
-    '78 MG Road, Pune, Maharashtra',
-    '22 FC Road, Pune, Maharashtra',
-    9765432109,
-    'Ravi Kulkarni',
-    9345678901,
-    2
-),
-(
-    '11 Banjara Hills, Hyderabad, Telangana',
-    '35 Jubilee Hills, Hyderabad, Telangana',
-    9988776655,
-    'Suma Reddy',
-    9001234567,
-    3
-),
-(
-    '9 Sector 21, Chandigarh',
-    '15 Sector 18, Chandigarh',
-    9871201234,
-    'Amit Verma',
-    9812345678,
-    4
-),
-(
-    '5 Indira Nagar, Lucknow, Uttar Pradesh',
-    '8 Gomti Nagar, Lucknow, Uttar Pradesh',
-    9911223344,
-    'Priya Singh',
-    9321654321,
-    5
-);
-```
-
-```sql
-INSERT INTO bsp_departmentlist (department_id, department_name) VALUES
-(0, 'Not Assigned'),
-(1, 'Human Resources'),
-(2, 'Finance'),
-(3, 'Engineering'),
-(4, 'Marketing'),
-(5, 'Sales'),
-(6, 'Research and Development'),
-(7, 'Customer Support'),
-(8, 'Legal'),
-(9, 'IT Services'),
-(10, 'Operations');
-```
-
-```sql
-INSERT INTO bsp_designationList (designation_id, designation_name) VALUES
-(0, 'Not Assigned'),
-(1, 'Manager'),
-(2, 'Team Lead'),
-(3, 'Software Engineer'),
-(4, 'Accountant'),
-(5, 'HR Executive'),
-(6, 'Sales Executive'),
-(7, 'Legal Advisor'),
-(8, 'Research Analyst'),
-(9, 'Support Specialist'),
-(10, 'Operations Coordinator');
-```
-
-**Important**: In the below query at the last replace ```<username>``` with the username you used while creating the superuser, with no extra spaces
-```sql
-update auth_user set first_name="rajesh", last_name="singh", birthday="2000-01-01", department_id_id=1, designation_id_id=1, is_dept_hr=1 where username="<username>";
-```
-
-# Start sequence (to be done everytime server is to be started)
-activate venv (only when opening/restarting vscode)
-```
-venv\Scripts\activate
-venv\Scripts\Activate.bat
-```
-server
-```
-py manage.py runserver
-```
-click on the link or go to the localhost and login with the username and password of superuser created
-
-### optional
-set workspace python interpreter to the venv so whenever you open the folder you just have to open a new terminal, instead of using the activation script first. (note: this is finicky and doesn't always work very well)
-* Ctrl + Shift + P in VSCode
-* type select interpreter
-* Click on the Python: Select Interpreter option 
-* Choose the one with venv in the brackets
-
-# Common errors:
-* 2002, "Can't connect to server on 'localhost' (10061)": To fix, type and go to services in search menu, find MySQL, right click & start
+## 📜 License
+Developed for educational and training purposes for Bhilai Steel Plant (SAIL). All rights reserved.

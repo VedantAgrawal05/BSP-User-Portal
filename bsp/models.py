@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser#, User
 import datetime, calendar
 import colorsys, random
 from dateutil.relativedelta import relativedelta
+from .utils.currency import format_indian_currency, indian_currency_commas
+from .utils.colors import generate_hex_colors
 
 
 # Create your models here.
@@ -35,10 +37,10 @@ class User(AbstractUser):
     """
     #currently using only one table, may split into different in future
     # department = models.CharField(max_length=200)
-    department_id = models.ForeignKey(DepartmentList, on_delete=models.SET_NULL, null=True, default=1)
+    department_id = models.ForeignKey(DepartmentList, on_delete=models.SET_NULL, null=True, default=1, db_column='department_id')
 
     # designation = models.CharField(max_length=200)
-    designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True, default=3)
+    designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True, default=3, db_column='designation_id')
     
     #overriding date_joined
     date_joined = models.DateField(default=datetime.datetime.today().date())
@@ -404,26 +406,21 @@ class CheckLog(models.Model):
     #for i in all depts
         # for dep in all_depts:
         for usr in all_users:
+            if not usr.department_id or usr.department_id.department_id == 0:
+                continue
+            dept_name = usr.department_id.department_name
+            if dept_name not in dep_info:
+                continue
+
+            found = False
             for chkin in todays_checkins:
-                    #dept ==i
-                if chkin.username==usr:
-                    # ch_in = chkin.time
-                    # sh = chkin.shift
-                    # if CheckLog.check_if_user_late(ch_in, sh):
-                    #     late_count+=1
-            
-                    dep_info[usr.department_id.department_name]["present_count"]+=1
+                if chkin.username == usr:
+                    dep_info[dept_name]["present_count"] += 1
                     found = True
                     break
 
-                    # else:
-                        # present_count+=1
-                    # present_users.append(i)
-
             if not found:
-
-                    dep_info[usr.department_id.department_name]["absent_count"]+=1
-                    found=False
+                dep_info[dept_name]["absent_count"] += 1
 
         for iter in dep_info:
             pc= dep_info[iter]["present_count"]
@@ -748,7 +745,7 @@ class Attendance(models.Model):
 
 
 class PayDetails(models.Model):
-    designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True)
+    designation_id = models.ForeignKey(DesignationList, on_delete=models.SET_NULL, null=True, db_column='designation_id')
     basic_salary= models.DecimalField(max_digits=10, decimal_places=2)
     allowances = models.DecimalField(max_digits=10, decimal_places=2)
     deductions = models.DecimalField(max_digits=10, decimal_places=2)
@@ -759,17 +756,22 @@ class PayDetails(models.Model):
     
     def get_sal_details(uobj):
         desgn = uobj.designation_id
-        # dobj = DesignationList.objects.get(designation_id=desgn)
-        sal_rec = PayDetails.objects.get(designation_id=desgn)
-        basic_salary = CommonClass.format_indian_currency(sal_rec.basic_salary)
-        allowances =  CommonClass.format_indian_currency(sal_rec.allowances)
-        deductions=  CommonClass.format_indian_currency(sal_rec.deductions)
-        net_salary =  CommonClass.format_indian_currency(sal_rec.net_salary)
+        try:
+            sal_rec = PayDetails.objects.get(designation_id=desgn)
+            basic_salary = CommonClass.format_indian_currency(sal_rec.basic_salary)
+            allowances = CommonClass.format_indian_currency(sal_rec.allowances)
+            deductions = CommonClass.format_indian_currency(sal_rec.deductions)
+            net_salary = CommonClass.format_indian_currency(sal_rec.net_salary)
+        except PayDetails.DoesNotExist:
+            basic_salary = "₹0"
+            allowances = "₹0"
+            deductions = "₹0"
+            net_salary = "₹0"
         sal_details = {
-            "basic_salary":basic_salary,
-            "allowances":allowances,
-            "deductions":deductions,
-            "net_salary":net_salary,
+            "basic_salary": basic_salary,
+            "allowances": allowances,
+            "deductions": deductions,
+            "net_salary": net_salary,
         }
         return sal_details
 
@@ -789,27 +791,35 @@ class EmployeeDetails(models.Model):
         return f"BSP{number:05d}"
 
     def get_employee_details(uobj):
-        rec = EmployeeDetails.objects.get(username=uobj)
-        user_obj = User.objects.get(username=uobj)
-        uid= uobj.id
-        desgn_id=uobj.designation_id
-        dept_id=uobj.department_id
-        bsp_id = EmployeeDetails.format_code(uid)
-        # dept_rec = DepartmentList.objects.get(designation_id=desgn_id)
-        
-        emp_details= {
-            "bsp_id":bsp_id,
-            "full_name":f"{uobj.first_name} {uobj.last_name}",
-            "department": dept_id.department_name,
-            "designation":desgn_id.designation_name,
-            "date_joined":uobj.date_joined,
-            "email":uobj.email,
-            "phone":rec.phone_number,
-            "res_address":rec.res_address,
-            "corr_address":rec.corr_address,
-            "emergency_contact":f'{rec.emergency_contact_name} - {rec.emergency_contact_number}',
-            "dob":user_obj.birthday
+        try:
+            rec = EmployeeDetails.objects.get(username=uobj)
+            phone = rec.phone_number
+            res_addr = rec.res_address
+            corr_addr = rec.corr_address
+            emer = f'{rec.emergency_contact_name} - {rec.emergency_contact_number}'
+        except EmployeeDetails.DoesNotExist:
+            phone = "N/A"
+            res_addr = "N/A"
+            corr_addr = "N/A"
+            emer = "N/A"
 
+        uid = uobj.id
+        desgn_id = uobj.designation_id
+        dept_id = uobj.department_id
+        bsp_id = EmployeeDetails.format_code(uid)
+        
+        emp_details = {
+            "bsp_id": bsp_id,
+            "full_name": f"{uobj.first_name} {uobj.last_name}".strip() or uobj.username,
+            "department": dept_id.department_name if dept_id else "Not Assigned",
+            "designation": desgn_id.designation_name if desgn_id else "Not Assigned",
+            "date_joined": uobj.date_joined,
+            "email": uobj.email,
+            "phone": phone,
+            "res_address": res_addr,
+            "corr_address": corr_addr,
+            "emergency_contact": emer,
+            "dob": uobj.birthday,
         }
         return emp_details
 
@@ -877,28 +887,13 @@ class CommonClass():
 
         return info
     
+    @staticmethod
     def format_indian_currency(number):
-        formatted = CommonClass.indian_currency_commas(number)
-        str1 = f"₹{formatted}"
-        return str1
+        return format_indian_currency(number)
     
-    def indian_currency_commas(number):    
-        number = int(round(number))  # Remove decimals
-        num_str = str(number)
-        if len(num_str) <= 3:
-            return num_str
-        else:
-            # Split last 3 digits and the rest
-            last_three = num_str[-3:]
-            remaining = num_str[:-3]
-            # Add commas after every 2 digits in the remaining part
-            parts = []
-            while len(remaining) > 2:
-                parts.insert(0, remaining[-2:])
-                remaining = remaining[:-2]
-            if remaining:
-                parts.insert(0, remaining)
-            return ','.join(parts) + ',' + last_three
+    @staticmethod
+    def indian_currency_commas(number):
+        return indian_currency_commas(number)
 
     def all_emps_info():
         emp_info= {}
@@ -985,20 +980,9 @@ class CommonClass():
 
 
     ##graph related stuff
+    @staticmethod
     def generate_hex_colors(n, saturation=0.7, value=0.95):
-        """Generate n visually distinct hex colors suitable for pie charts."""
-        colors = []
-        for i in range(n):
-            hue = i / n
-            rgb = colorsys.hsv_to_rgb(hue, saturation, value)
-            hex_color = '#{:02x}{:02x}{:02x}'.format(
-                int(rgb[0] * 255),
-                int(rgb[1] * 255),
-                int(rgb[2] * 255)
-            )
-            colors.append(hex_color)
-        random.shuffle(colors)  # Optional: randomize order
-        return colors
+        return generate_hex_colors(n, saturation, value)
 
 
     def get_current():
@@ -1046,8 +1030,8 @@ class CommonClass():
         d1={}
         for usr in users_in_dept:
             d1 = EmployeeDetails.get_employee_details(usr)
-            usr.department_name = usr.department_id.department_name
-            usr.designation_name = usr.designation_id.designation_name
+            usr.department_name = usr.department_id.department_name if usr.department_id else "Not Assigned"
+            usr.designation_name = usr.designation_id.designation_name if usr.designation_id else "Not Assigned"
             usr.bsp_id = d1["bsp_id"]
             usr.phone = d1["phone"]
             usr.address = d1["corr_address"]
@@ -1066,8 +1050,8 @@ class CommonClass():
         d1={}
         for usr in all_users:
             d1 = EmployeeDetails.get_employee_details(usr)
-            usr.department_name = usr.department_id.department_name
-            usr.designation_name = usr.designation_id.designation_name
+            usr.department_name = usr.department_id.department_name if usr.department_id else "Not Assigned"
+            usr.designation_name = usr.designation_id.designation_name if usr.designation_id else "Not Assigned"
             usr.bsp_id = d1["bsp_id"]
             usr.phone = d1["phone"]
             usr.address = d1["corr_address"]
@@ -1131,8 +1115,8 @@ class CommonClass():
                     # present_users.append(i)
 
             if not found:
-                    absent_count.append(i)
-                    found=False
+                absent_count.append(i)
+            found = False
 
         # try:
         #     chk = (present_count / (present_count + absent_count ))*100
@@ -1204,8 +1188,8 @@ class CommonClass():
                     # present_users.append(i)
 
             if not found:
-                    absent_count.append(i)
-                    found=False
+                absent_count.append(i)
+            found = False
 
         # try:
         #     chk = (present_count / (present_count + absent_count ))*100

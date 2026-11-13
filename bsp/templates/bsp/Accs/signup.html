@@ -158,7 +158,11 @@
   </style>
 </head>
 <body>
+  {% include "bsp/includes/messages.html" %}
   <div class="form-container">
+    <div style="text-align: left; margin-bottom: 15px;">
+      <a href="{% url 'bsp:home' %}" style="color: #63b3ed; text-decoration: none; font-size: 14px;">← Back to Dashboard</a>
+    </div>
         <div class="logo-section">
       <div class="logo">
         <img class="img1" src="{% static 'bsp/images/bsp_logo.png' %}">

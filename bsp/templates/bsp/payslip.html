@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payslip - {{ emp.full_name }} ({{ month_str }}) | SAIL Bhilai</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #1a202c;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .action-bar {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-back {
+      background: #4a5568;
+      color: #e2e8f0;
+    }
+    .btn-back:hover {
+      background: #718096;
+    }
+    .btn-print {
+      background: #3182ce;
+      color: white;
+    }
+    .btn-print:hover {
+      background: #2b6cb0;
+    }
+    .payslip-sheet {
+      width: 100%;
+      max-width: 800px;
+      background: #ffffff;
+      color: #2d3748;
+      border-radius: 8px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .header-table {
+      width: 100%;
+      border-bottom: 2px solid #2b6cb0;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .company-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1a365d;
+      letter-spacing: 0.5px;
+    }
+    .company-sub {
+      font-size: 0.95rem;
+      color: #4a5568;
+    }
+    .slip-title {
+      text-align: right;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2b6cb0;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem 2rem;
+      background: #f7fafc;
+      padding: 1.2rem;
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      border: 1px solid #e2e8f0;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #718096;
+    }
+    .info-val {
+      font-weight: 600;
+      color: #2d3748;
+    }
+    .salary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+    .salary-table th, .salary-table td {
+      border: 1px solid #cbd5e0;
+      padding: 0.75rem 1rem;
+      font-size: 0.92rem;
+    }
+    .salary-table th {
+      background: #edf2f7;
+      color: #2b6cb0;
+      font-weight: 700;
+      text-align: left;
+    }
+    .amount {
+      text-align: right;
+      font-weight: 600;
+    }
+    .net-box {
+      background: #ebf8ff;
+      border: 2px solid #bee3f8;
+      border-radius: 6px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .net-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2b6cb0;
+    }
+    .net-amount {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #2b6cb0;
+    }
+    .footer-notes {
+      font-size: 0.8rem;
+      color: #718096;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 1rem;
+    }
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .action-bar {
+        display: none;
+      }
+      .payslip-sheet {
+        box-shadow: none;
+        max-width: 100%;
+        padding: 1.5cm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="action-bar">
+    <a href="{% url 'bsp:home' %}" class="btn btn-back">← Back to Dashboard</a>
+    <button onclick="window.print()" class="btn btn-print">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <div class="payslip-sheet">
+    <table class="header-table">
+      <tr>
+        <td>
+          <div class="company-title">STEEL AUTHORITY OF INDIA LIMITED (SAIL)</div>
+          <div class="company-sub">Bhilai Steel Plant, Bhilai, Durg, Chhattisgarh - 490001</div>
+        </td>
+        <td style="text-align: right;">
+          <div class="slip-title">PAYSLIP</div>
+          <div class="company-sub">{{ month_str }}</div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="info-grid">
+      <div class="info-row">
+        <span class="info-label">Employee ID:</span>
+        <span class="info-val">{{ emp.bsp_id }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Full Name:</span>
+        <span class="info-val">{{ emp.full_name }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Department:</span>
+        <span class="info-val">{{ emp.department }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Designation:</span>
+        <span class="info-val">{{ emp.designation }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Date of Joining:</span>
+        <span class="info-val">{{ emp.date_joined }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email:</span>
+        <span class="info-val">{{ emp.email }}</span>
+      </div>
+    </div>
+
+    <table class="salary-table">
+      <thead>
+        <tr>
+          <th style="width: 50%;">Earnings</th>
+          <th style="width: 50%;" class="amount">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Basic Salary</td>
+          <td class="amount">{{ sal.basic_salary }}</td>
+        </tr>
+        <tr>
+          <td>Allowances (DA, HRA, Transport)</td>
+          <td class="amount">{{ sal.allowances }}</td>
+        </tr>
+        <tr>
+          <td><strong>Gross Earnings</strong></td>
+          <td class="amount"><strong>{{ sal.basic_salary }} + {{ sal.allowances }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="salary-table">
+      <thead>
+        <tr>
+          <th style="width: 50%;">Deductions</th>
+          <th style="width: 50%;" class="amount">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Provident Fund (PF) & Welfare Deductions</td>
+          <td class="amount">{{ sal.deductions }}</td>
+        </tr>
+        <tr>
+          <td><strong>Total Deductions</strong></td>
+          <td class="amount"><strong>{{ sal.deductions }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="net-box">
+      <span class="net-label">NET SALARY PAYABLE:</span>
+      <span class="net-amount">{{ sal.net_salary }}</span>
+    </div>
+
+    <div class="footer-notes">
+      <p>This is a computer-generated payslip issued by Bhilai Steel Plant (SAIL) and does not require an ink signature.</p>
+      <p>Generated on: {{ today }} | For payroll queries, contact C&IT / HR Dept.</p>
+    </div>
+  </div>
+</body>
+</html>
+

@@ -1,21 +1,41 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
-from .models import User
-# Create your views here.
+from django.contrib import messages
 from bsp.forms import SignUpForm
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-# from django.contrib.auth.models import User
-from .models import User, DesignationList, DepartmentList, CheckLog, Attendance, CommonClass, EmployeeDetails
+from .models import User, DesignationList, DepartmentList, CheckLog, Attendance, CommonClass, EmployeeDetails, PayDetails
+from bsp.utils.shifts import get_current_shift_info
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core.exceptions import ValidationError
-
-from django.http import HttpResponseForbidden
+import csv
+import datetime
 import random
 import colorsys
 import json
+
+from django.utils.translation import gettext as _
+
+from django.shortcuts import redirect
+from django.utils import translation
+# from django.utils.translation import LANGUAGE_SESSION_KEY
+
+from django.conf import settings
+
+# def set_language(request):
+#     lang = request.GET.get('lang')
+#     if lang in dict(settings.LANGUAGES):
+#         request.session[LANGUAGE_SESSION_KEY] = lang
+#     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+def set_language(request):
+    lang = request.GET.get('lang')
+    if lang in dict(settings.LANGUAGES):
+        translation.activate(lang)
+        request.session[translation.LANGUAGE_SESSION_KEY] = lang  # ✅ This works, no need to import the constant
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required(login_url="/accounts/login/")
@@ -25,8 +45,10 @@ def homepage(request):
         uname=request.user.username
         user_obj = User.objects.get(username=uname)
         info = CommonClass.get_info(user_obj)
+        shift_info = get_current_shift_info(user_obj)
         context={
             "info":info,
+            "shift_info": shift_info,
             "is_dept_hr": False,
             "is_read_only_superuser": False,
             "is_superuser": False,
@@ -39,8 +61,6 @@ def homepage(request):
 
         if user_is_superuser(request):
             context["is_superuser"]=True
-
-        # context["time"] = timezone.now().time()
 
         return render(request, "bsp/MainPages/homepage.html", context)
 
@@ -210,9 +230,11 @@ def punch_in(request):
         if to_allow:
             new_pin = CheckLog(username=user_obj, action_id=1, shift=CheckLog.match_time_to_shift(type="shift_start"))
             new_pin.save()
-
+            time_str = new_pin.time.strftime('%I:%M %p') if hasattr(new_pin.time, 'strftime') else str(new_pin.time)
+            messages.success(request, f"Successfully recorded Punch-in for Shift {new_pin.shift} at {time_str}!")
         else:
             context={"flag":1}
+            messages.warning(request, "Punch-in already recorded recently for today.")
         return render(request, "bsp/punches/punchin.html", context)
 
     else:
@@ -229,9 +251,11 @@ def punch_out(request):
         if to_allow:
             new_put = CheckLog(username=user_obj, action_id=2, shift=CheckLog.match_time_to_shift(type="shift_end"))
             new_put.save()
-
+            time_str = new_put.time.strftime('%I:%M %p') if hasattr(new_put.time, 'strftime') else str(new_put.time)
+            messages.success(request, f"Successfully recorded Punch-out for Shift {new_put.shift} at {time_str}!")
         else:
             context = {"flag":1}
+            messages.warning(request, "Punch-out already recorded recently for today.")
         return render(request, "bsp/punches/punchout.html", context)
 
     else:
@@ -320,7 +344,7 @@ def show_dept_users(request):
 @login_required(login_url="/accounts/login/")
 def show_dept_present_users(request):
     if request.user.is_authenticated:
-        if user_is_dept_hr(request):
+        if user_is_superuser(request) or user_is_dept_hr(request):
             uname=request.user.username
             user_obj = User.objects.get(username=uname)
             users_in_dept= CommonClass.get_todays_users_for_dept(user_obj)
@@ -328,8 +352,8 @@ def show_dept_present_users(request):
             d1={}
             for usr in users_in_dept["present_count"]:
                 d1 = EmployeeDetails.get_employee_details(usr)
-                usr.department_name = usr.department_id.department_name
-                usr.designation_name = usr.designation_id.designation_name
+                usr.department_name = usr.department_id.department_name if usr.department_id else "Not Assigned"
+                usr.designation_name = usr.designation_id.designation_name if usr.designation_id else "Not Assigned"
                 usr.bsp_id = d1["bsp_id"]
                 usr.phone = d1["phone"]
                 usr.address = d1["corr_address"]
@@ -338,17 +362,18 @@ def show_dept_present_users(request):
             personal_details = CommonClass.get_info(user_obj)
 
             context={
-            "users":users_in_dept["present_count"],
-            # "details":details,
-            "flag":1,
-            "info":personal_details,
-            "dept":user_obj.department_id.department_name,
-            "type":"present",
-                }
+                "users":users_in_dept["present_count"],
+                # "details":details,
+                "flag":1,
+                "info":personal_details,
+                "dept":user_obj.department_id.department_name if user_obj.department_id else "Not Assigned",
+                "type":"present",
+            }
             
             return render(request, "bsp/users/wuser.html", context)
 
-
+        else:
+            return HttpResponseForbidden("You do not have permission to view this resource")
     else:
         return HttpResponseForbidden("You do not have permission to view this resource")
             
@@ -357,7 +382,7 @@ def show_dept_present_users(request):
 @login_required(login_url="/accounts/login/")
 def show_dept_absent_users(request):
     if request.user.is_authenticated:
-        if user_is_dept_hr(request):
+        if user_is_superuser(request) or user_is_dept_hr(request):
             uname=request.user.username
             user_obj = User.objects.get(username=uname)
             users_in_dept= CommonClass.get_todays_users_for_dept(user_obj)
@@ -365,8 +390,8 @@ def show_dept_absent_users(request):
             d1={}
             for usr in users_in_dept["absent_count"]:
                 d1 = EmployeeDetails.get_employee_details(usr)
-                usr.department_name = usr.department_id.department_name
-                usr.designation_name = usr.designation_id.designation_name
+                usr.department_name = usr.department_id.department_name if usr.department_id else "Not Assigned"
+                usr.designation_name = usr.designation_id.designation_name if usr.designation_id else "Not Assigned"
                 usr.bsp_id = d1["bsp_id"]
                 usr.phone = d1["phone"]
                 usr.address = d1["corr_address"]
@@ -375,17 +400,18 @@ def show_dept_absent_users(request):
             personal_details = CommonClass.get_info(user_obj)
 
             context={
-            "users":users_in_dept["absent_count"],
-            # "details":details,
-            "flag":1,
-            "info":personal_details,
-            "dept":user_obj.department_id.department_name,
-            "type":"absent",
-                }
+                "users":users_in_dept["absent_count"],
+                # "details":details,
+                "flag":1,
+                "info":personal_details,
+                "dept":user_obj.department_id.department_name if user_obj.department_id else "Not Assigned",
+                "type":"absent",
+            }
             
             return render(request, "bsp/users/wuser.html", context)
 
-
+        else:
+            return HttpResponseForbidden("You do not have permission to view this resource")
     else:
         return HttpResponseForbidden("You do not have permission to view this resource")
             
@@ -394,7 +420,7 @@ def show_dept_absent_users(request):
 @login_required(login_url="/accounts/login/")
 def show_dept_late_users(request):
     if request.user.is_authenticated:
-        if user_is_dept_hr(request):
+        if user_is_superuser(request) or user_is_dept_hr(request):
             uname=request.user.username
             user_obj = User.objects.get(username=uname)
             users_in_dept= CommonClass.get_todays_users_for_dept(user_obj)
@@ -402,8 +428,8 @@ def show_dept_late_users(request):
             d1={}
             for usr in users_in_dept["late_count"]:
                 d1 = EmployeeDetails.get_employee_details(usr)
-                usr.department_name = usr.department_id.department_name
-                usr.designation_name = usr.designation_id.designation_name
+                usr.department_name = usr.department_id.department_name if usr.department_id else "Not Assigned"
+                usr.designation_name = usr.designation_id.designation_name if usr.designation_id else "Not Assigned"
                 usr.bsp_id = d1["bsp_id"]
                 usr.phone = d1["phone"]
                 usr.address = d1["corr_address"]
@@ -412,17 +438,18 @@ def show_dept_late_users(request):
             personal_details = CommonClass.get_info(user_obj)
 
             context={
-            "users":users_in_dept["late_count"],
-            # "details":details,
-            "flag":1,
-            "info":personal_details,
-            "dept":user_obj.department_id.department_name,
-            "type":"late",
-                }
+                "users":users_in_dept["late_count"],
+                # "details":details,
+                "flag":1,
+                "info":personal_details,
+                "dept":user_obj.department_id.department_name if user_obj.department_id else "Not Assigned",
+                "type":"late",
+            }
             
             return render(request, "bsp/users/wuser.html", context)
 
-
+        else:
+            return HttpResponseForbidden("You do not have permission to view this resource")
     else:
         return HttpResponseForbidden("You do not have permission to view this resource")
             
@@ -431,7 +458,7 @@ def show_dept_late_users(request):
 @login_required(login_url="/accounts/login/")
 def show_all_present_users(request):
     if request.user.is_authenticated:
-        if user_is_dept_hr(request):
+        if user_is_superuser(request) or user_is_dept_hr(request):
             uname=request.user.username
             user_obj = User.objects.get(username=uname)
             users_in_dept= CommonClass.get_todays_users_for_all_dept()
@@ -439,8 +466,8 @@ def show_all_present_users(request):
             d1={}
             for usr in users_in_dept["present_count"]:
                 d1 = EmployeeDetails.get_employee_details(usr)
-                usr.department_name = usr.department_id.department_name
-                usr.designation_name = usr.designation_id.designation_name
+                usr.department_name = usr.department_id.department_name if usr.department_id else "Not Assigned"
+                usr.designation_name = usr.designation_id.designation_name if usr.designation_id else "Not Assigned"
                 usr.bsp_id = d1["bsp_id"]
                 usr.phone = d1["phone"]
                 usr.address = d1["corr_address"]
@@ -449,16 +476,17 @@ def show_all_present_users(request):
             personal_details = CommonClass.get_info(user_obj)
 
             context={
-            "users":users_in_dept["present_count"],
-            # "details":details,
-            "flag":1,
-            "info":personal_details,
-            "dept":user_obj.department_id.department_name,
-            "type":"present",
-                }
+                "users":users_in_dept["present_count"],
+                # "details":details,
+                "flag":1,
+                "info":personal_details,
+                "dept":user_obj.department_id.department_name if user_obj.department_id else "Not Assigned",
+                "type":"present",
+            }
             
             return render(request, "bsp/users/quser.html", context)
-
+        else:
+            return HttpResponseForbidden("You do not have permission to view this resource")
 
     else:
         return HttpResponseForbidden("You do not have permission to view this resource")
@@ -468,7 +496,7 @@ def show_all_present_users(request):
 @login_required(login_url="/accounts/login/")
 def show_all_absent_users(request):
     if request.user.is_authenticated:
-        if user_is_dept_hr(request):
+        if user_is_superuser(request) or user_is_dept_hr(request):
             uname=request.user.username
             user_obj = User.objects.get(username=uname)
             users_in_dept= CommonClass.get_todays_users_for_all_dept()
@@ -476,8 +504,8 @@ def show_all_absent_users(request):
             d1={}
             for usr in users_in_dept["absent_count"]:
                 d1 = EmployeeDetails.get_employee_details(usr)
-                usr.department_name = usr.department_id.department_name
-                usr.designation_name = usr.designation_id.designation_name
+                usr.department_name = usr.department_id.department_name if usr.department_id else "Not Assigned"
+                usr.designation_name = usr.designation_id.designation_name if usr.designation_id else "Not Assigned"
                 usr.bsp_id = d1["bsp_id"]
                 usr.phone = d1["phone"]
                 usr.address = d1["corr_address"]
@@ -486,16 +514,17 @@ def show_all_absent_users(request):
             personal_details = CommonClass.get_info(user_obj)
 
             context={
-            "users":users_in_dept["absent_count"],
-            # "details":details,
-            "flag":1,
-            "info":personal_details,
-            "dept":user_obj.department_id.department_name,
-            "type":"absent",
-                }
+                "users":users_in_dept["absent_count"],
+                # "details":details,
+                "flag":1,
+                "info":personal_details,
+                "dept":user_obj.department_id.department_name if user_obj.department_id else "Not Assigned",
+                "type":"absent",
+            }
             
             return render(request, "bsp/users/quser.html", context)
-
+        else:
+            return HttpResponseForbidden("You do not have permission to view this resource")
 
     else:
         return HttpResponseForbidden("You do not have permission to view this resource")
@@ -505,7 +534,7 @@ def show_all_absent_users(request):
 @login_required(login_url="/accounts/login/")
 def show_all_late_users(request):
     if request.user.is_authenticated:
-        if user_is_dept_hr(request):
+        if user_is_superuser(request) or user_is_dept_hr(request):
             uname=request.user.username
             user_obj = User.objects.get(username=uname)
             users_in_dept= CommonClass.get_todays_users_for_all_dept()
@@ -513,8 +542,8 @@ def show_all_late_users(request):
             d1={}
             for usr in users_in_dept["late_count"]:
                 d1 = EmployeeDetails.get_employee_details(usr)
-                usr.department_name = usr.department_id.department_name
-                usr.designation_name = usr.designation_id.designation_name
+                usr.department_name = usr.department_id.department_name if usr.department_id else "Not Assigned"
+                usr.designation_name = usr.designation_id.designation_name if usr.designation_id else "Not Assigned"
                 usr.bsp_id = d1["bsp_id"]
                 usr.phone = d1["phone"]
                 usr.address = d1["corr_address"]
@@ -523,16 +552,17 @@ def show_all_late_users(request):
             personal_details = CommonClass.get_info(user_obj)
 
             context={
-            "users":users_in_dept["late_count"],
-            # "details":details,
-            "flag":1,
-            "info":personal_details,
-            "dept":user_obj.department_id.department_name,
-            "type":"late",
-                }
+                "users":users_in_dept["late_count"],
+                # "details":details,
+                "flag":1,
+                "info":personal_details,
+                "dept":user_obj.department_id.department_name if user_obj.department_id else "Not Assigned",
+                "type":"late",
+            }
             
             return render(request, "bsp/users/quser.html", context)
-
+        else:
+            return HttpResponseForbidden("You do not have permission to view this resource")
 
     else:
         return HttpResponseForbidden("You do not have permission to view this resource")
@@ -597,7 +627,7 @@ def user_is_superuser(request):
 
 
 def signup(request):
-    if user_is_dept_hr(request):
+    if user_is_superuser(request) or user_is_dept_hr(request):
         if request.method == "POST":
             form = SignUpForm(request.POST)
             if form.is_valid():
@@ -605,18 +635,142 @@ def signup(request):
 
                 # Check email before saving
                 if User.objects.filter(email=email).exists():
+                    messages.error(request, f"An employee with email '{email}' already exists.")
                     return render(request, 'bsp/Accs/signup.html', {'form': form, 'flag': 1})
 
-                # Save and log in
-                form.save()
-                username = form.cleaned_data.get("username")
-                raw_password = form.cleaned_data.get("password1")
-                user = authenticate(username=username, password=raw_password)
-                login(request, user)
-                return redirect("bsp:home")
+                # Save user with selected department and designation
+                user = form.save(commit=False)
+                dept_val = form.cleaned_data.get('department')
+                desg_val = form.cleaned_data.get('designation')
+                if dept_val:
+                    try:
+                        user.department_id = DepartmentList.objects.get(department_id=dept_val)
+                    except DepartmentList.DoesNotExist:
+                        pass
+                if desg_val:
+                    try:
+                        user.designation_id = DesignationList.objects.get(designation_id=desg_val)
+                    except DesignationList.DoesNotExist:
+                        pass
+                user.save()
+
+                # Also create EmployeeDetails so user has a complete profile
+                EmployeeDetails.objects.get_or_create(
+                    username=user,
+                    defaults={
+                        'res_address': 'SAIL Township, Bhilai',
+                        'corr_address': 'SAIL Township, Bhilai',
+                        'phone_number': 9999999999,
+                        'emergency_contact_name': 'Emergency Contact',
+                        'emergency_contact_number': 9999999999,
+                    }
+                )
+
+                messages.success(request, f"User account '{user.username}' ({user.first_name} {user.last_name}) created successfully!")
+
+                if user_is_superuser(request):
+                    return redirect("bsp:superuser_dash")
+                elif user_is_dept_hr(request):
+                    return redirect("bsp:hr_dash")
+                else:
+                    return redirect("bsp:home")
         else:
             form = SignUpForm()
 
         return render(request, 'bsp/Accs/signup.html', {'form': form})
     else:
         return HttpResponseForbidden("You do not have permission to view this resource")
+
+
+@login_required(login_url="/accounts/login/")
+def export_employees_csv(request):
+    """
+    Exports all employee records as a CSV spreadsheet.
+    """
+    if not (user_is_superuser(request) or user_is_dept_hr(request)):
+        return HttpResponseForbidden("Permission denied.")
+
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="SAIL_BSP_Employees.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['BSP ID', 'Username', 'First Name', 'Last Name', 'Department', 'Designation', 'Email', 'Phone', 'Date Joined', 'Residential Address'])
+
+    users = CommonClass.get_all_users()
+    for u in users:
+        writer.writerow([
+            getattr(u, 'bsp_id', f"BSP{u.id:05d}"),
+            u.username,
+            u.first_name,
+            u.last_name,
+            u.department_id.department_name if u.department_id else 'Not Assigned',
+            u.designation_id.designation_name if u.designation_id else 'Not Assigned',
+            u.email,
+            getattr(u, 'phone', 'N/A'),
+            u.date_joined,
+            getattr(u, 'address', 'N/A'),
+        ])
+    return response
+
+
+@login_required(login_url="/accounts/login/")
+def export_attendance_csv(request):
+    """
+    Exports today's attendance roster across all departments as a CSV spreadsheet.
+    """
+    if not (user_is_superuser(request) or user_is_dept_hr(request)):
+        return HttpResponseForbidden("Permission denied.")
+
+    today_str = datetime.date.today().strftime('%Y-%m-%d')
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="SAIL_BSP_Attendance_{today_str}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Date', 'BSP ID', 'Username', 'Full Name', 'Department', 'Designation', 'Status'])
+
+    todays_data = CommonClass.get_todays_users_for_all_dept()
+    for u in todays_data.get('present_count', []):
+        d1 = EmployeeDetails.get_employee_details(u)
+        writer.writerow([
+            today_str,
+            d1.get('bsp_id', f"BSP{u.id:05d}"),
+            u.username,
+            d1.get('full_name', u.username),
+            u.department_id.department_name if u.department_id else 'Not Assigned',
+            u.designation_id.designation_name if u.designation_id else 'Not Assigned',
+            'Present',
+        ])
+    for u in todays_data.get('absent_count', []):
+        d1 = EmployeeDetails.get_employee_details(u)
+        writer.writerow([
+            today_str,
+            d1.get('bsp_id', f"BSP{u.id:05d}"),
+            u.username,
+            d1.get('full_name', u.username),
+            u.department_id.department_name if u.department_id else 'Not Assigned',
+            u.designation_id.designation_name if u.designation_id else 'Not Assigned',
+            'Absent',
+        ])
+    return response
+
+
+@login_required(login_url="/accounts/login/")
+def view_payslip(request):
+    """
+    Renders an official, printable SAIL Bhilai Steel Plant monthly payslip.
+    """
+    user_obj = request.user
+    emp_details = EmployeeDetails.get_employee_details(user_obj)
+    sal_details = PayDetails.get_sal_details(user_obj)
+
+    today = datetime.date.today()
+    month_str = today.strftime("%B %Y")
+
+    context = {
+        "user": user_obj,
+        "emp": emp_details,
+        "sal": sal_details,
+        "month_str": month_str,
+        "today": today,
+    }
+    return render(request, "bsp/payslip.html", context)

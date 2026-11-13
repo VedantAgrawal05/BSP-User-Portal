@@ -640,6 +640,7 @@
     </style>
 </head>
 <body>
+    {% include "bsp/includes/messages.html" %}
     <header class="header">
         <div class="logo-section">
             <img id="home-btn" src="{% static 'bsp/images/bsp_logo.png' %}" class="link-button logo">
@@ -672,11 +673,50 @@
     </header>
 
     <main class="main-content">
-        {% comment %} {{time}} {% endcomment %}
-        <div class="current-status">
-                <div class="status-text" id="currentStatus">Welcome</div>
-                <div class="status-time" id="statusTime"></div>
+        <!-- Live Plant Shift & Status Card -->
+        <div class="shift-hero-card" style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.15); border-radius: 14px; padding: 1.5rem 2rem; margin: 1.5rem 0; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                <div>
+                    <span style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; color: #a0aec0; font-weight: 600;">SAIL Plant Shift Schedule</span>
+                    <h2 style="font-size: 1.6rem; color: #ffffff; margin-top: 0.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem;">
+                        <span>⏱️ {{ shift_info.shift_name }}</span>
+                        <span style="background: rgba(66, 153, 225, 0.2); color: #63b3ed; border: 1px solid rgba(99, 179, 237, 0.4); font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 20px;">Shift {{ shift_info.shift_code }}</span>
+                    </h2>
+                    <div style="color: #cbd5e0; font-size: 0.92rem; margin-top: 0.25rem;">
+                        Standard Hours: <strong>{{ shift_info.shift_timing }}</strong>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0, 0, 0, 0.3); border: 1px solid {{ shift_info.status_color }}; padding: 0.4rem 0.9rem; border-radius: 30px;">
+                        <span style="width: 10px; height: 10px; border-radius: 50%; background: {{ shift_info.status_color }}; display: inline-block; box-shadow: 0 0 8px {{ shift_info.status_color }};"></span>
+                        <span style="color: {{ shift_info.status_color }}; font-weight: 600; font-size: 0.95rem;">{{ shift_info.status_label }}</span>
+                    </div>
+                    <div style="color: #a0aec0; font-size: 0.85rem; margin-top: 0.4rem;" id="liveClock">{{ shift_info.today_date }} • <span id="clockTime" style="color: #63b3ed; font-weight: 600;">{{ shift_info.current_time }}</span></div>
+                </div>
             </div>
+            
+            <!-- Quick Punch Indicators Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.9rem 1.2rem;">
+                    <div style="font-size: 0.78rem; color: #a0aec0; text-transform: uppercase; font-weight: 600;">Today's Punch-In</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; margin-top: 0.3rem; color: {% if shift_info.punched_in %}#68d391{% else %}#a0aec0{% endif %};">
+                        {% if shift_info.punched_in %}✅ {{ shift_info.punch_in_time }}{% else %}⏳ Not Recorded{% endif %}
+                    </div>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.9rem 1.2rem;">
+                    <div style="font-size: 0.78rem; color: #a0aec0; text-transform: uppercase; font-weight: 600;">Today's Punch-Out</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; margin-top: 0.3rem; color: {% if shift_info.punched_out %}#63b3ed{% else %}#a0aec0{% endif %};">
+                        {% if shift_info.punched_out %}🏁 {{ shift_info.punch_out_time }}{% else %}⏳ Not Recorded{% endif %}
+                    </div>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.9rem 1.2rem;">
+                    <div style="font-size: 0.78rem; color: #a0aec0; text-transform: uppercase; font-weight: 600;">Plant Department & Role</div>
+                    <div style="font-size: 0.95rem; font-weight: 600; margin-top: 0.3rem; color: #e2e8f0;">
+                        {{ info.employee_details.department }} • {{ info.employee_details.designation }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
             
             <div class="punch-controls">
@@ -771,7 +811,7 @@
                         <span class="info-label">Net Salary:</span>
                         <span class="info-value">{{info.salary_details.net_salary}}</span>
                     </div>
-                    <button class="btn" onclick="viewPayslip()">Download Payslip</button>
+                    <a href="{% url 'bsp:view_payslip' %}" class="btn" style="display: block; text-align: center; text-decoration: none; margin-top: 1rem;">View / Print Payslip</a>
                     </div>
             </div>
 
@@ -959,6 +999,23 @@
                 }, index * 100);
             });
         });
+
+        // Live clock updater
+        function updateClock() {
+            const clockEl = document.getElementById('clockTime');
+            if (clockEl) {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                clockEl.textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
 
 
         
