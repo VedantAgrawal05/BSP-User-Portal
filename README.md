@@ -4,13 +4,6 @@ An enterprise employee attendance, shift tracking, and human resources portal de
 
 ---
 
-## 👥 Project Team
-- **Animesh Banerjee**
-- **Arnav Kaser**
-- **Vedant Agrawal** ([@VedantAgrawal05](https://github.com/VedantAgrawal05))
-
----
-
 ## ✨ Features & Capabilities
 
 ### 1. ⏱️ Live Plant Shift & Real-Time Duty Tracker
